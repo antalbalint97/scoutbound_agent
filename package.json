@@ -1,0 +1,26 @@
+{
+  "name": "revon-tinyfish-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:contracts dev:api dev:web",
+    "dev:contracts": "npm --workspace @revon-tinyfish/contracts run dev",
+    "dev:api": "npm --workspace @revon-tinyfish/api run dev",
+    "dev:web": "npm --workspace @revon-tinyfish/web run dev",
+    "build": "npm run build:contracts && npm run build:api && npm run build:web",
+    "build:contracts": "npm --workspace @revon-tinyfish/contracts run build",
+    "build:api": "npm --workspace @revon-tinyfish/api run build",
+    "build:web": "npm --workspace @revon-tinyfish/web run build",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "postinstall": "npm run build:contracts"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { icpInputSchema, leadRecordSchema } from "./lead.js";
 
-export const runStatusSchema = z.enum(["running", "completed", "error"]);
+export const runStatusSchema = z.enum(["running", "completed", "partial", "failed"]);
+export const runModeSchema = z.enum(["live", "mock"]);
+export const runQualitySchema = z.enum(["healthy", "degraded"]);
 
 export const runStepKeySchema = z.enum([
   "discovering_companies",
@@ -11,7 +13,14 @@ export const runStepKeySchema = z.enum([
   "ready_for_revon",
 ]);
 
-export const runStepStatusSchema = z.enum(["pending", "active", "done", "error"]);
+export const runStepStatusSchema = z.enum([
+  "pending",
+  "running",
+  "completed",
+  "partial",
+  "failed",
+  "skipped",
+]);
 
 export const runStepSchema = z.object({
   key: runStepKeySchema,
@@ -24,6 +33,8 @@ export const runSummarySchema = z.object({
   directoryUrl: z.string().url().nullable().default(null),
   companiesFound: z.number().int().nonnegative().default(0),
   websitesVisited: z.number().int().nonnegative().default(0),
+  websiteFailures: z.number().int().nonnegative().default(0),
+  partialLeadCount: z.number().int().nonnegative().default(0),
   decisionMakersFound: z.number().int().nonnegative().default(0),
   qualifiedLeadCount: z.number().int().nonnegative().default(0),
 });
@@ -34,15 +45,17 @@ export const runPushStateSchema = z.object({
   pushedCompanyCount: z.number().int().nonnegative().default(0),
   pushedContactCount: z.number().int().nonnegative().default(0),
   destination: z.string().default("not-configured"),
-  requestId: z.string().optional(),
-  message: z.string().optional(),
-  error: z.string().optional(),
-  pushedAt: z.string().optional(),
+  requestId: z.string().nullable().default(null),
+  message: z.string().nullable().default(null),
+  error: z.string().nullable().default(null),
+  pushedAt: z.string().nullable().default(null),
 });
 
 export const demoRunSchema = z.object({
   id: z.string(),
   status: runStatusSchema,
+  mode: runModeSchema,
+  quality: runQualitySchema,
   startedAt: z.string(),
   completedAt: z.string().optional(),
   input: icpInputSchema,
@@ -50,6 +63,8 @@ export const demoRunSchema = z.object({
   summary: runSummarySchema,
   leads: z.array(leadRecordSchema).default([]),
   push: runPushStateSchema,
+  notes: z.array(z.string()).default([]),
+  modeReason: z.string().optional(),
   error: z.string().optional(),
 });
 
@@ -62,6 +77,8 @@ export const pushRunRequestSchema = z.object({
 });
 
 export type RunStatus = z.infer<typeof runStatusSchema>;
+export type RunMode = z.infer<typeof runModeSchema>;
+export type RunQuality = z.infer<typeof runQualitySchema>;
 export type RunStepKey = z.infer<typeof runStepKeySchema>;
 export type RunStepStatus = z.infer<typeof runStepStatusSchema>;
 export type RunStep = z.infer<typeof runStepSchema>;

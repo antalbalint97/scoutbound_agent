@@ -9,6 +9,10 @@ export const companySizeSchema = z.enum([
   "1000+",
 ]);
 
+export const dataConfidenceSchema = z.enum(["high", "medium", "low"]);
+export const leadCaptureModeSchema = z.enum(["live", "mock"]);
+export const leadInspectionStatusSchema = z.enum(["completed", "partial", "failed"]);
+
 export const icpInputSchema = z.object({
   targetMarket: z.string().trim().min(2, "Target market is required"),
   location: z.string().trim().min(2, "Location is required"),
@@ -43,9 +47,12 @@ export const leadEvidenceSchema = z.object({
   id: z.string(),
   kind: leadEvidenceKindSchema,
   sourceUrl: z.string().url(),
+  sourceLabel: z.string().default(""),
   title: z.string(),
   summary: z.string(),
-  quote: z.string().optional(),
+  snippet: z.string().nullable().default(null),
+  confidence: dataConfidenceSchema.default("medium"),
+  qualityNote: z.string().nullable().default(null),
 });
 
 export const leadScoreSchema = z.object({
@@ -53,6 +60,8 @@ export const leadScoreSchema = z.object({
   contactabilityScore: z.number().min(0).max(100),
   priority: leadPrioritySchema,
   reasons: z.array(z.string()).default([]),
+  confidence: dataConfidenceSchema.default("medium"),
+  qualityNotes: z.array(z.string()).default([]),
 });
 
 export const leadRecordSchema = z.object({
@@ -61,6 +70,9 @@ export const leadRecordSchema = z.object({
   websiteUrl: z.string().url(),
   companyDomain: z.string(),
   directoryUrl: z.string().url().nullable().default(null),
+  discoverySource: z.string().default(""),
+  captureMode: leadCaptureModeSchema.default("live"),
+  inspectionStatus: leadInspectionStatusSchema.default("completed"),
   location: z.string().default(""),
   companySize: z.string().default(""),
   industry: z.string().default(""),
@@ -69,10 +81,15 @@ export const leadRecordSchema = z.object({
   contacts: z.array(leadContactSchema).default([]),
   positioningSignals: z.array(z.string()).default([]),
   evidence: z.array(leadEvidenceSchema).default([]),
+  matchReasons: z.array(z.string()).default([]),
+  qualityNotes: z.array(z.string()).default([]),
   score: leadScoreSchema,
 });
 
 export type CompanySize = z.infer<typeof companySizeSchema>;
+export type DataConfidence = z.infer<typeof dataConfidenceSchema>;
+export type LeadCaptureMode = z.infer<typeof leadCaptureModeSchema>;
+export type LeadInspectionStatus = z.infer<typeof leadInspectionStatusSchema>;
 export type IcpInput = z.infer<typeof icpInputSchema>;
 export type LeadPriority = z.infer<typeof leadPrioritySchema>;
 export type LeadContact = z.infer<typeof leadContactSchema>;

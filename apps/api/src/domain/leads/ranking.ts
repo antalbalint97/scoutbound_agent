@@ -28,6 +28,7 @@ function computePriority(fitScore: number, contactabilityScore: number): LeadPri
 
 export function rankLead(input: IcpInput, lead: LeadRecord): LeadRecord {
   const reasons: string[] = [];
+  const qualityNotes = [...lead.qualityNotes];
   const keywordTerms = splitKeywords(input.keywords);
   const searchBlob = [
     lead.summary,
@@ -41,6 +42,10 @@ export function rankLead(input: IcpInput, lead: LeadRecord): LeadRecord {
 
   let fitScore = 28;
   let contactabilityScore = 18;
+
+  if (lead.matchReasons.length > 0) {
+    reasons.push(...lead.matchReasons);
+  }
 
   if (matches(searchBlob, input.targetMarket)) {
     fitScore += 26;
@@ -94,11 +99,34 @@ export function rankLead(input: IcpInput, lead: LeadRecord): LeadRecord {
     reasons.push(`Detected target persona signal for ${input.decisionMakerRole}.`);
   }
 
+  if (lead.inspectionStatus === "partial") {
+    fitScore = Math.max(0, fitScore - 10);
+    contactabilityScore = Math.max(0, contactabilityScore - 12);
+    qualityNotes.push("Website inspection was partial, so ranking confidence is reduced.");
+  }
+
+  if (lead.inspectionStatus === "failed") {
+    fitScore = Math.max(0, fitScore - 18);
+    contactabilityScore = Math.max(0, contactabilityScore - 25);
+    qualityNotes.push("Website inspection failed, so this lead should not be presented as high-confidence.");
+  }
+
+  const cappedFit = Math.min(100, fitScore);
+  const cappedContactability = Math.min(100, contactabilityScore);
+  const confidence =
+    lead.inspectionStatus === "completed" && lead.evidence.length >= 3
+      ? "high"
+      : lead.inspectionStatus === "failed"
+        ? "low"
+        : "medium";
+
   const score = {
-    fitScore: Math.min(100, fitScore),
-    contactabilityScore: Math.min(100, contactabilityScore),
-    priority: computePriority(Math.min(100, fitScore), Math.min(100, contactabilityScore)),
+    fitScore: cappedFit,
+    contactabilityScore: cappedContactability,
+    priority: computePriority(cappedFit, cappedContactability),
     reasons,
+    confidence,
+    qualityNotes,
   } as const;
 
   return {

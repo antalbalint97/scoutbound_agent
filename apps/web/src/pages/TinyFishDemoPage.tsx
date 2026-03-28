@@ -65,7 +65,10 @@ export function TinyFishDemoPage() {
 
   useEffect(() => {
     if (!selectedLeadId && run?.leads[0]) {
-      setSelectedLeadId(run.leads[0].id);
+      const preferredLead =
+        run.leads.find((lead) => lead.score.priority !== "low" && lead.inspectionStatus !== "failed") ??
+        run.leads[0];
+      setSelectedLeadId(preferredLead.id);
     }
   }, [run, selectedLeadId]);
 

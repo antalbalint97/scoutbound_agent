@@ -50,6 +50,12 @@ export function LeadTable({ leads, selectedLeadId, onSelect }: LeadTableProps) {
 
               <p className="lead-summary">{lead.summary || "No website summary captured."}</p>
 
+              <div className="meta-row">
+                <span>{lead.captureMode === "live" ? "live" : "mock"}</span>
+                <span>{lead.inspectionStatus}</span>
+                <span>{lead.score.confidence} confidence</span>
+              </div>
+
               <div className="score-row">
                 <span>Fit {lead.score.fitScore}</span>
                 <span>Contact {lead.score.contactabilityScore}</span>

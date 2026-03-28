@@ -19,6 +19,7 @@ export const revonImportPayloadSchema = z.object({
 });
 
 export const revonPushResultSchema = z.object({
+  mode: z.enum(["dry-run", "live"]),
   dryRun: z.boolean(),
   destination: z.string(),
   pushedCompanyCount: z.number().int().nonnegative(),

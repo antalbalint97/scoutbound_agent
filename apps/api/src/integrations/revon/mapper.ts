@@ -19,7 +19,7 @@ export function mapLeadToRevonRecords(lead: LeadRecord): RevonWebhookLead[] {
   }
 
   return lead.contacts.map((contact) => ({
-    email: contact.email ?? undefined,
+    ...(contact.email ? { email: contact.email } : {}),
     full_name: contact.name,
     job_title: contact.role,
     company: lead.companyName,

@@ -29,6 +29,12 @@ export function PushToRevonButton({
         {revonStatus?.dryRun ? " (dry-run mode)" : ""}
       </p>
 
+      {run?.status === "partial" ? (
+        <p className="muted">
+          This run completed with degradation. Push is still allowed for reviewable qualified leads.
+        </p>
+      ) : null}
+
       <button
         className="primary-button"
         disabled={!canPush || isSubmitting}
@@ -39,6 +45,12 @@ export function PushToRevonButton({
       </button>
 
       {run?.push.message ? <p className="success-note">{run.push.message}</p> : null}
+      {run?.push.status === "completed" ? (
+        <p className="muted">
+          Push mode: {run.push.dryRun ? "dry-run" : "live"} | Companies: {run.push.pushedCompanyCount}
+          {" | "}Contacts: {run.push.pushedContactCount}
+        </p>
+      ) : null}
       {run?.push.error ? <p className="inline-error">{run.push.error}</p> : null}
     </section>
   );

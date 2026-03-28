@@ -31,9 +31,13 @@ export async function pushQualifiedLeadsToRevon(
   const destination = getDestination();
   const dryRun = getDryRun();
   const records = leads.flatMap((lead) => mapLeadToRevonRecords(lead));
+  console.log(
+    `[tinyfish-demo] revon push -> mode=${dryRun || !process.env.REVON_IMPORT_URL?.trim() ? "dry-run" : "live"} companies=${leads.length} contacts=${records.length} destination=${destination}`,
+  );
 
   if (!process.env.REVON_IMPORT_URL?.trim() || dryRun) {
     return revonPushResultSchema.parse({
+      mode: "dry-run",
       dryRun: true,
       destination,
       pushedCompanyCount: leads.length,
@@ -80,14 +84,17 @@ export async function pushQualifiedLeadsToRevon(
   }
 
   return revonPushResultSchema.parse({
+    mode: "live",
     dryRun: false,
     destination,
     pushedCompanyCount: leads.length,
     pushedContactCount: records.length,
-    requestId:
-      response.headers.get("x-request-id") ??
-      response.headers.get("x-vektr-import-id") ??
-      undefined,
+    ...(response.headers.get("x-request-id") || response.headers.get("x-vektr-import-id")
+      ? {
+          requestId:
+            response.headers.get("x-request-id") ?? response.headers.get("x-vektr-import-id")!,
+        }
+      : {}),
     message,
   });
 }

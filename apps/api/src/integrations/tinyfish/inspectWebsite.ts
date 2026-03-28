@@ -11,6 +11,7 @@ export async function inspectWebsite(
   candidate: DirectoryCandidate,
 ): Promise<WebsiteInspection> {
   try {
+    console.log(`[tinyfish-demo] website inspection -> ${candidate.websiteUrl}`);
     const raw = await runTinyFishAutomation({
       apiKey,
       url: candidate.websiteUrl,
@@ -19,7 +20,14 @@ export async function inspectWebsite(
     });
 
     return parseWebsiteInspection(raw, candidate.websiteUrl);
-  } catch {
-    return createEmptyWebsiteInspection(candidate.websiteUrl);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "TinyFish website inspection failed unexpectedly.";
+    console.warn(`[tinyfish-demo] website inspection failed -> ${candidate.websiteUrl} :: ${message}`);
+    return createEmptyWebsiteInspection(candidate.websiteUrl, {
+      inspectionStatus: "failed",
+      qualityNotes: [message],
+      missingFields: ["summary", "emails", "team", "signals"],
+    });
   }
 }

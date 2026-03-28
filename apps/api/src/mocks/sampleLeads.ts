@@ -23,6 +23,7 @@ const MOCK_DOMAINS = [
 export function createMockDirectoryDiscovery(input: IcpInput): {
   directoryUrl: string;
   candidates: DirectoryCandidate[];
+  warnings: string[];
 } {
   const candidates = Array.from({ length: input.maxResults }, (_, index) => {
     const name = MOCK_NAMES[index % MOCK_NAMES.length] ?? `Demo Company ${index + 1}`;
@@ -43,6 +44,7 @@ export function createMockDirectoryDiscovery(input: IcpInput): {
   return {
     directoryUrl: "https://clutch.co/agencies",
     candidates,
+    warnings: [],
   };
 }
 

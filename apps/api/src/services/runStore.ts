@@ -1,5 +1,18 @@
 import { randomUUID } from "node:crypto";
-import { demoRunSchema, type DemoRun, type IcpInput, type LeadRecord, type RunPushState, type RunStep, type RunStepKey, type RunSummary } from "@revon-tinyfish/contracts";
+import {
+  demoRunSchema,
+  type DemoRun,
+  type IcpInput,
+  type LeadRecord,
+  type RunMode,
+  type RunPushState,
+  type RunQuality,
+  type RunStatus,
+  type RunStep,
+  type RunStepKey,
+  type RunStepStatus,
+  type RunSummary,
+} from "@revon-tinyfish/contracts";
 
 const RUN_TTL_MS = 15 * 60 * 1000;
 const runs = new Map<string, DemoRun>();
@@ -31,16 +44,30 @@ function findStep(run: DemoRun, key: RunStepKey): RunStep | undefined {
   return run.steps.find((step) => step.key === key);
 }
 
-export function createRun(input: IcpInput): DemoRun {
+function mergeNotes(existing: string[], incoming?: string[]): string[] {
+  return [...new Set([...(existing ?? []), ...(incoming ?? [])].filter(Boolean))];
+}
+
+export function createRun(
+  input: IcpInput,
+  options: {
+    mode: RunMode;
+    modeReason?: string;
+  },
+): DemoRun {
   const run = demoRunSchema.parse({
     id: randomUUID(),
     status: "running",
+    mode: options.mode,
+    quality: "healthy",
     startedAt: new Date().toISOString(),
     input,
     steps: buildSteps(),
     summary: {},
     leads: [],
     push: {},
+    notes: options.modeReason ? [options.modeReason] : [],
+    ...(options.modeReason ? { modeReason: options.modeReason } : {}),
   });
 
   runs.set(run.id, run);
@@ -66,25 +93,21 @@ export function mutateRun(runId: string, mutate: (run: DemoRun) => void): DemoRu
   return cloneRun(run);
 }
 
-export function activateStep(runId: string, key: RunStepKey, detail?: string): DemoRun | undefined {
+export function setStepStatus(
+  runId: string,
+  key: RunStepKey,
+  status: RunStepStatus,
+  detail?: string,
+): DemoRun | undefined {
   return mutateRun(runId, (run) => {
     const step = findStep(run, key);
     if (!step) {
       return;
     }
-    step.status = "active";
-    step.detail = detail;
-  });
-}
-
-export function completeStep(runId: string, key: RunStepKey, detail?: string): DemoRun | undefined {
-  return mutateRun(runId, (run) => {
-    const step = findStep(run, key);
-    if (!step) {
-      return;
+    step.status = status;
+    if (detail) {
+      step.detail = detail;
     }
-    step.status = "done";
-    step.detail = detail;
   });
 }
 
@@ -97,25 +120,87 @@ export function updateSummary(runId: string, patch: Partial<RunSummary>): DemoRu
   });
 }
 
-export function finishRun(runId: string, leads: LeadRecord[]): DemoRun | undefined {
+export function appendRunNote(runId: string, note: string): DemoRun | undefined {
   return mutateRun(runId, (run) => {
-    run.leads = leads;
-    run.status = "completed";
-    run.completedAt = new Date().toISOString();
+    run.notes = mergeNotes(run.notes, [note]);
   });
 }
 
-export function failRun(runId: string, message: string, stepKey?: RunStepKey): DemoRun | undefined {
+export function updateRunState(
+  runId: string,
+  patch: Partial<Pick<DemoRun, "mode" | "quality" | "status" | "modeReason" | "error">> & {
+    notes?: string[];
+  },
+): DemoRun | undefined {
+  return mutateRun(runId, (run) => {
+    if (patch.mode) {
+      run.mode = patch.mode;
+    }
+    if (patch.quality) {
+      run.quality = patch.quality;
+    }
+    if (patch.status) {
+      run.status = patch.status;
+    }
+    if (patch.modeReason) {
+      run.modeReason = patch.modeReason;
+    }
+    if (patch.error) {
+      run.error = patch.error;
+    }
+    if (patch.notes && patch.notes.length > 0) {
+      run.notes = mergeNotes(run.notes, patch.notes);
+    }
+  });
+}
+
+export function finishRun(
+  runId: string,
+  options: {
+    leads: LeadRecord[];
+    status: Extract<RunStatus, "completed" | "partial">;
+    quality: RunQuality;
+    notes?: string[];
+    error?: string;
+  },
+): DemoRun | undefined {
+  return mutateRun(runId, (run) => {
+    run.leads = options.leads;
+    run.status = options.status;
+    run.quality = options.quality;
+    run.completedAt = new Date().toISOString();
+    run.notes = mergeNotes(run.notes, options.notes);
+    if (options.error) {
+      run.error = options.error;
+    }
+  });
+}
+
+export function failRun(
+  runId: string,
+  message: string,
+  stepKey?: RunStepKey,
+  notes?: string[],
+): DemoRun | undefined {
   return mutateRun(runId, (run) => {
     if (stepKey) {
       const step = findStep(run, stepKey);
       if (step) {
-        step.status = "error";
+        step.status = "failed";
         step.detail = message;
       }
     }
-    run.status = "error";
+    for (const step of run.steps) {
+      if (step.status === "pending") {
+        step.status = "skipped";
+        step.detail = "Skipped after an earlier run failure.";
+      }
+    }
+    run.status = "failed";
+    run.quality = "degraded";
     run.error = message;
+    run.completedAt = new Date().toISOString();
+    run.notes = mergeNotes(run.notes, notes);
   });
 }
 

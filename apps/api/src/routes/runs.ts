@@ -49,8 +49,8 @@ router.post("/:runId/push", async (request: Request, response: Response) => {
     return;
   }
 
-  if (run.status !== "completed") {
-    response.status(409).json({ error: "Run must be completed before pushing to Revon." });
+  if (run.status !== "completed" && run.status !== "partial") {
+    response.status(409).json({ error: "Run must be completed or partial before pushing to Revon." });
     return;
   }
 
@@ -75,6 +75,8 @@ router.post("/:runId/push", async (request: Request, response: Response) => {
 
   updatePushState(run.id, {
     status: "running",
+    error: null,
+    message: null,
   });
 
   try {
@@ -85,10 +87,10 @@ router.post("/:runId/push", async (request: Request, response: Response) => {
       destination: result.destination,
       pushedCompanyCount: result.pushedCompanyCount,
       pushedContactCount: result.pushedContactCount,
-      requestId: result.requestId,
-      message: result.message,
+      requestId: result.requestId ?? null,
+      message: result.message ?? null,
       pushedAt: new Date().toISOString(),
-      error: undefined,
+      error: null,
     });
     response.json(updatedRun);
   } catch (error) {
@@ -96,6 +98,7 @@ router.post("/:runId/push", async (request: Request, response: Response) => {
     const updatedRun = updatePushState(run.id, {
       status: "error",
       error: message,
+      message: null,
     });
     response.status(502).json(updatedRun);
   }

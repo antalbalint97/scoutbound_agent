@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { icpInputSchema, type IcpInput } from "@revon-tinyfish/contracts";
 
 interface IcpFormProps {
@@ -6,7 +6,58 @@ interface IcpFormProps {
   onSubmit: (input: IcpInput) => Promise<void>;
 }
 
-const DEFAULT_INPUT: IcpInput = {
+interface DemoPreset {
+  id: string;
+  label: string;
+  note: string;
+  recommended?: boolean;
+  input: IcpInput;
+}
+
+const DEMO_PRESETS: DemoPreset[] = [
+  {
+    id: "london-digital-marketing",
+    label: "London digital agencies",
+    note: "Recommended live demo path",
+    recommended: true,
+    input: {
+      targetMarket: "Digital marketing",
+      location: "London",
+      companySize: "11-50",
+      keywords: "B2B, SaaS, growth",
+      decisionMakerRole: "Founder",
+      maxResults: 5,
+    },
+  },
+  {
+    id: "berlin-web-development",
+    label: "Berlin web dev shops",
+    note: "Good fallback live preset",
+    input: {
+      targetMarket: "Web development",
+      location: "Berlin",
+      companySize: "11-50",
+      keywords: "B2B, product, SaaS",
+      decisionMakerRole: "Managing Director",
+      maxResults: 4,
+    },
+  },
+  {
+    id: "amsterdam-seo",
+    label: "Amsterdam SEO agencies",
+    note: "Smaller, focused prospect list",
+    input: {
+      targetMarket: "SEO",
+      location: "Amsterdam",
+      companySize: "11-50",
+      keywords: "lead generation, B2B",
+      decisionMakerRole: "Founder",
+      maxResults: 4,
+    },
+  },
+];
+
+const DEFAULT_INPUT: IcpInput = DEMO_PRESETS[0]?.input ?? {
   targetMarket: "Digital marketing",
   location: "London",
   companySize: "11-50",
@@ -19,7 +70,7 @@ export function IcpForm({ isSubmitting, onSubmit }: IcpFormProps) {
   const [form, setForm] = useState<IcpInput>(DEFAULT_INPUT);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
       const parsed = icpInputSchema.parse(form);
@@ -39,6 +90,11 @@ export function IcpForm({ isSubmitting, onSubmit }: IcpFormProps) {
     }));
   }
 
+  function applyPreset(preset: DemoPreset) {
+    setForm(preset.input);
+    setError(null);
+  }
+
   return (
     <section className="panel panel-form">
       <div className="panel-header">
@@ -46,8 +102,26 @@ export function IcpForm({ isSubmitting, onSubmit }: IcpFormProps) {
         <h2>Launch a TinyFish lead run</h2>
         <p className="muted">
           TinyFish browses public directories and real company websites, then returns a ranked
-          Revon-ready shortlist.
+          Revon-ready shortlist. Use the recommended preset if you want the safest live path.
         </p>
+      </div>
+
+      <div className="preset-row">
+        {DEMO_PRESETS.map((preset) => (
+          <button
+            className={`preset-button ${
+              form.targetMarket === preset.input.targetMarket && form.location === preset.input.location
+                ? "selected"
+                : ""
+            }`}
+            key={preset.id}
+            onClick={() => applyPreset(preset)}
+            type="button"
+          >
+            <strong>{preset.label}</strong>
+            <span>{preset.recommended ? `${preset.note} | safest option` : preset.note}</span>
+          </button>
+        ))}
       </div>
 
       <form className="icp-form" onSubmit={handleSubmit}>

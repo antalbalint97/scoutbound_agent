@@ -5,16 +5,35 @@ interface RunTimelineProps {
 }
 
 function statusLabel(status: DemoRun["steps"][number]["status"]): string {
-  if (status === "active") {
+  if (status === "running") {
     return "Running";
   }
-  if (status === "done") {
-    return "Done";
+  if (status === "completed") {
+    return "Completed";
   }
-  if (status === "error") {
-    return "Error";
+  if (status === "partial") {
+    return "Partial";
+  }
+  if (status === "failed") {
+    return "Failed";
+  }
+  if (status === "skipped") {
+    return "Skipped";
   }
   return "Pending";
+}
+
+function runStatusLabel(status: DemoRun["status"]): string {
+  if (status === "completed") {
+    return "Completed";
+  }
+  if (status === "partial") {
+    return "Completed with degradation";
+  }
+  if (status === "failed") {
+    return "Failed";
+  }
+  return "Running";
 }
 
 export function RunTimeline({ run }: RunTimelineProps) {
@@ -31,6 +50,18 @@ export function RunTimeline({ run }: RunTimelineProps) {
         </p>
       ) : (
         <>
+          <div className="badge-row">
+            <span className={`status-pill mode-${run.mode}`}>
+              {run.mode === "live" ? "Live TinyFish" : "Mock backup"}
+            </span>
+            <span className={`status-pill quality-${run.quality}`}>
+              {run.quality === "healthy" ? "Healthy" : "Degraded"}
+            </span>
+            <span className={`status-pill status-${run.status}`}>{runStatusLabel(run.status)}</span>
+          </div>
+
+          {run.modeReason ? <p className="muted mode-reason">{run.modeReason}</p> : null}
+
           <div className="summary-grid">
             <article>
               <span>Companies found</span>
@@ -39,6 +70,14 @@ export function RunTimeline({ run }: RunTimelineProps) {
             <article>
               <span>Websites visited</span>
               <strong>{run.summary.websitesVisited}</strong>
+            </article>
+            <article>
+              <span>Website failures</span>
+              <strong>{run.summary.websiteFailures}</strong>
+            </article>
+            <article>
+              <span>Partial leads</span>
+              <strong>{run.summary.partialLeadCount}</strong>
             </article>
             <article>
               <span>Decision makers</span>
@@ -70,6 +109,17 @@ export function RunTimeline({ run }: RunTimelineProps) {
               </li>
             ))}
           </ol>
+
+          {run.notes.length > 0 ? (
+            <div className="run-notes">
+              <h3>Run notes</h3>
+              <ul className="stack-list compact-list">
+                {run.notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {run.error ? <p className="inline-error">{run.error}</p> : null}
         </>

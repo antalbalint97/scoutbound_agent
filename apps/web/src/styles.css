@@ -149,6 +149,33 @@ select {
   gap: 14px;
 }
 
+.preset-row {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.preset-button {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(49, 38, 26, 0.08);
+  background: rgba(255, 255, 255, 0.68);
+  cursor: pointer;
+}
+
+.preset-button span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.preset-button.selected {
+  border-color: rgba(13, 127, 113, 0.42);
+  box-shadow: inset 0 0 0 1px rgba(13, 127, 113, 0.24);
+}
+
 .icp-form label {
   display: grid;
   gap: 8px;
@@ -220,6 +247,22 @@ select {
   list-style: none;
 }
 
+.badge-row,
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge-row {
+  margin-bottom: 14px;
+}
+
+.mode-reason {
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
 .timeline li {
   display: grid;
   grid-template-columns: 92px 1fr;
@@ -251,20 +294,30 @@ select {
   background: rgba(79, 73, 67, 0.08);
 }
 
-.status-active {
+.status-running {
   background: rgba(13, 127, 113, 0.12);
   color: var(--accent);
 }
 
-.status-done {
+.status-completed,
+.quality-healthy,
+.mode-live {
   background: rgba(66, 138, 88, 0.14);
   color: #2e7750;
 }
 
-.status-error,
-.priority-low {
+.status-failed,
+.quality-degraded,
+.status-skipped,
+.priority-low,
+.mode-mock {
   background: rgba(175, 64, 58, 0.12);
   color: var(--danger);
+}
+
+.status-partial {
+  background: rgba(217, 134, 50, 0.14);
+  color: #8e5a16;
 }
 
 .priority-medium {
@@ -320,6 +373,13 @@ select {
   margin-top: 10px;
 }
 
+.meta-row {
+  margin-top: 12px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
 .score-row {
   display: flex;
   flex-wrap: wrap;
@@ -351,6 +411,14 @@ select {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.74);
   border: 1px solid rgba(49, 38, 26, 0.08);
+}
+
+.run-notes {
+  margin-top: 16px;
+}
+
+.compact-list {
+  margin-top: 8px;
 }
 
 .inline-error,

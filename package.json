@@ -16,7 +16,7 @@
     "build:contracts": "npm --workspace @revon-tinyfish/contracts run build",
     "build:api": "npm --workspace @revon-tinyfish/api run build",
     "build:web": "npm --workspace @revon-tinyfish/web run build",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build:contracts && npm run typecheck --workspaces --if-present",
     "postinstall": "npm run build:contracts"
   },
   "devDependencies": {

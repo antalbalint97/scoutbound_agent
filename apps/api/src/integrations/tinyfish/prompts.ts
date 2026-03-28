@@ -40,56 +40,85 @@ export function buildDirectoryUrl(input: IcpInput): string {
 
 export function buildDirectoryGoal(input: IcpInput): string {
   return `
-Open this public directory page and extract up to ${input.maxResults} company listings that best match:
+Task: extract up to ${input.maxResults} high-confidence company listings from the current directory page only.
+
+ICP to match:
 - Target market: ${input.targetMarket}
 - Geography: ${input.location}
-- Size preference: ${input.companySize}
-- Additional lead cues: ${input.keywords || "none supplied"}
+- Preferred company size: ${input.companySize}
+- Extra keywords: ${input.keywords || "none supplied"}
 
-Return a JSON array. Each item must use these exact keys:
+Rules:
+- Use only information visible on the current page view.
+- Do not paginate or click external websites.
+- Do not guess websites, ratings, company sizes, or locations.
+- If a field is missing, return null for that field.
+- Prefer fewer high-confidence results over broad uncertain output.
+- If no suitable companies are visible, return [].
+
+Return ONLY a JSON array. Each item must use these exact keys:
 {
-  "company_name": "Company display name",
-  "website_url": "https://company-site.com",
-  "directory_url": "https://directory-profile-url",
-  "location": "City, Country",
-  "short_description": "One sentence summary of what they do",
-  "primary_service": "Main service category",
-  "employee_range": "11-50",
-  "rating": 4.8
+  "company_name": "Company display name or null",
+  "website_url": "https://company-site.com or null",
+  "directory_url": "https://directory-profile-url or null",
+  "location": "City, Country or null",
+  "short_description": "One sentence summary from visible listing text or null",
+  "primary_service": "Main service category or null",
+  "employee_range": "11-50 or null",
+  "rating": 4.8 or null,
+  "match_reasons": ["short visible reason 1", "short visible reason 2"],
+  "evidence_snippet": "short visible listing text snippet or null",
+  "quality_notes": ["note about missing or uncertain data"]
 }
-
-Only use listings visible in the current directory page view.
-Do not paginate.
-Return only the JSON array.
 `.trim();
 }
 
 export function buildWebsiteGoal(input: IcpInput): string {
   return `
-Visit this company website and gather outreach-ready lead intelligence for Revon.
+Task: inspect this company website and return a small, high-confidence lead discovery summary for Revon.
 
-Prioritize finding a likely buyer persona for: ${input.decisionMakerRole}
-Target market context: ${input.targetMarket}
-Extra keywords to look for: ${input.keywords || "none"}
+Target persona:
+- Prioritize decision-makers relevant to: ${input.decisionMakerRole}
+- ICP context: ${input.targetMarket}
+- Keywords to look for: ${input.keywords || "none"}
 
-Return a JSON object with these exact keys:
+Rules:
+- Check the homepage first, then contact/about/team pages only when available.
+- Do not invent team members, titles, or contact details.
+- Only include an email if it is explicitly visible on the site.
+- If a field is missing, use null or [] and record it in "missing_fields".
+- If something looks likely but is not explicit, do not promote it to fact. Record that field in "uncertain_fields".
+- Prefer a smaller amount of trustworthy information.
+
+Return ONLY one JSON object with these exact keys:
 {
-  "summary": "one sentence company summary",
+  "summary": "one sentence company summary or null",
   "services": ["service 1", "service 2"],
-  "emails": ["name@company.com"],
+  "emails": ["visible-email@company.com"],
   "contact_page_url": "https://company.com/contact" or null,
   "about_page_url": "https://company.com/about" or null,
   "team_page_url": "https://company.com/team" or null,
   "team": [
-    { "name": "Full Name", "role": "Job Title" }
+    { "name": "Full Name", "role": "Explicit visible job title" }
   ],
   "signals": [
-    "notable client or industry signal",
-    "technology or delivery capability"
-  ]
+    "high-confidence positioning or ICP-relevant signal"
+  ],
+  "evidence": [
+    {
+      "kind": "homepage | contact_page | about_page | team_page | footer | other",
+      "source_url": "https://...",
+      "source_label": "homepage | contact page | team page",
+      "title": "short evidence title",
+      "summary": "what this evidence proves",
+      "snippet": "short visible text snippet or null",
+      "confidence": "high | medium | low",
+      "quality_note": "null or short uncertainty note"
+    }
+  ],
+  "missing_fields": ["emails", "team"],
+  "uncertain_fields": ["decision-maker relevance"],
+  "quality_notes": ["short operational note about limits or ambiguity"]
 }
-
-Check the homepage, footer, contact page, about page, and team page when available.
-Return only the JSON object.
 `.trim();
 }

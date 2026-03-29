@@ -47,7 +47,7 @@ export function ConsoleRunsPage() {
         }
       } catch (error) {
         if (!cancelled) {
-          setPageError(error instanceof Error ? error.message : "Failed to load Revon adapter status.");
+          setPageError(error instanceof Error ? error.message : "Failed to load CRM adapter status.");
         }
       }
     }
@@ -202,7 +202,7 @@ export function ConsoleRunsPage() {
       const freshRun = await getRun(runId);
       setRun(freshRun);
     } catch (error) {
-      setPageError(error instanceof Error ? error.message : "Failed to start the TinyFish run.");
+      setPageError(error instanceof Error ? error.message : "Failed to start the Scoutbound run.");
     } finally {
       setIsStarting(false);
     }
@@ -225,7 +225,7 @@ export function ConsoleRunsPage() {
       const status = await getRevonStatus();
       setRevonStatus(status);
     } catch (error) {
-      setPageError(error instanceof Error ? error.message : "Failed to push leads to Revon.");
+      setPageError(error instanceof Error ? error.message : "Failed to sync leads to CRM.");
     } finally {
       setIsPushing(false);
     }

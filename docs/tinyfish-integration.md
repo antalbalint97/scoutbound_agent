@@ -1,6 +1,6 @@
 # TinyFish Integration
 
-The Revon-TinyFish backend integrates with the TinyFish API to execute autonomous web agents for company discovery and website inspection.
+The Scoutbound backend integrates with the TinyFish API to execute autonomous web agents for company discovery and website inspection.
 
 The integration logic is located in `apps/api/src/integrations/tinyfish/`.
 

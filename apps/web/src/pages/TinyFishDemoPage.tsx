@@ -46,8 +46,8 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
     <main className="page-shell">
       <section className="hero landing-hero">
         <div>
-          <p className="eyebrow">Revon × TinyFish</p>
-          <h1>Autonomous outbound prospect sourcing for modern revenue teams</h1>
+          <p className="eyebrow">Scoutbound</p>
+          <h1>Autonomous prospect sourcing powered by real web agents</h1>
           <p className="hero-copy landing-copy">
             Replace manual SDR research with a web-agent workflow that navigates live company websites, scores fit, extracts contact signals, and delivers CRM-ready shortlists.
           </p>
@@ -119,7 +119,7 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
           <div className="summary-card value-card">
             <h4 className="value-card-title">CRM-ready handoff</h4>
             <p>
-              Shortlists are delivered with extracted contact signals and full evidence trails, ready to be synced directly into Revon for outbound sequencing.
+              Shortlists are delivered with extracted contact signals and full evidence trails, ready to be synced directly into your CRM for outbound sequencing.
             </p>
           </div>
         </div>
@@ -127,7 +127,7 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
 
       <section className="tf-rationale">
         <div className="tf-rationale-header">
-          <p className="eyebrow">Why TinyFish</p>
+          <p className="eyebrow">Scoutbound powered by TinyFish</p>
           <h3>This workflow depends on real browser automation</h3>
           <p className="tf-rationale-sub">LLMs can qualify and reason. They cannot navigate. TinyFish bridges that gap.</p>
         </div>
@@ -184,7 +184,7 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
                 <li>agent navigates sites autonomously</li>
                 <li>prospects ranked by fit and reachability</li>
                 <li>review evidence-backed shortlist</li>
-                <li>sync into Revon</li>
+                <li>CRM sync</li>
               </ul>
             </div>
           </div>
@@ -223,7 +223,7 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
           </div>
           <div className="summary-card">
             <span className="summary-card-label">Integration</span>
-            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Sync qualified leads to Revon</p>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>CRM sync</p>
             <p className="summary-card-sub">(disabled in submission build)</p>
           </div>
         </div>

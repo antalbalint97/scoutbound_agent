@@ -1,6 +1,6 @@
 # Architecture Overview
 
-Revon-TinyFish is an autonomous outbound prospect sourcing application that leverages web agents to navigate live company websites, score fit, and extract contact signals.
+Scoutbound is an autonomous outbound prospect sourcing application powered by TinyFish web agents.
 
 ## System Components
 

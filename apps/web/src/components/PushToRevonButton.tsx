@@ -39,12 +39,12 @@ export function PushToRevonButton({
   return (
     <section className="panel panel-push">
       <div className="panel-header compact">
-        <p className="eyebrow">Revon sync</p>
+        <p className="eyebrow">CRM sync</p>
         <h2>Sync shortlist for outbound sequencing</h2>
       </div>
 
       <p className="muted">
-        Push qualified prospects into Revon to queue them for outbound sequencing. Destination: {revonStatus?.destination ?? "loading..."}
+        Push qualified prospects into your CRM to queue them for outbound sequencing. Destination: {revonStatus?.destination ?? "loading..."}
         {revonStatus?.dryRun ? " (dry-run mode)" : ""}
       </p>
 
@@ -64,7 +64,7 @@ export function PushToRevonButton({
       </button>
 
       <p className="muted" style={{ marginTop: "12px", fontStyle: "italic" }}>
-        Revon sync integration is temporarily disabled in this standalone submission build.
+        CRM sync integration is temporarily disabled in this standalone submission build.
       </p>
 
       {run?.push.message ? <p className="success-note">{run.push.message}</p> : null}

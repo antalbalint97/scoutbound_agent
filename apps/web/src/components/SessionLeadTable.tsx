@@ -39,8 +39,8 @@ function sortedLeads(
       av = QUAL_ORDER[aq as keyof typeof QUAL_ORDER] ?? 0;
       bv = QUAL_ORDER[bq as keyof typeof QUAL_ORDER] ?? 0;
     } else {
-      av = a.revonStatusLabel === "Pushed to Revon" ? 2 : a.revonStatusLabel === "Dry run" ? 1 : 0;
-      bv = b.revonStatusLabel === "Pushed to Revon" ? 2 : b.revonStatusLabel === "Dry run" ? 1 : 0;
+      av = a.revonStatusLabel === "Synced to CRM" ? 2 : a.revonStatusLabel === "Dry run" ? 1 : 0;
+      bv = b.revonStatusLabel === "Synced to CRM" ? 2 : b.revonStatusLabel === "Dry run" ? 1 : 0;
     }
     return dir === "desc" ? bv - av : av - bv;
   });
@@ -75,7 +75,7 @@ function ConfidencePill({ level }: { level: string }) {
 
 function SyncBadge({ label }: { label: string }) {
   const cls =
-    label === "Pushed to Revon"
+    label === "Synced to CRM"
       ? "sync-synced"
       : label === "Dry run"
         ? "sync-dryrun"
@@ -83,7 +83,7 @@ function SyncBadge({ label }: { label: string }) {
           ? "sync-failed"
           : "sync-none";
   const short =
-    label === "Pushed to Revon"
+    label === "Synced to CRM"
       ? "Synced"
       : label === "Dry run"
         ? "Dry run"

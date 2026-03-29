@@ -1,6 +1,6 @@
 # Session Lifecycle
 
-The end-to-end session lifecycle in Revon-TinyFish describes the entire process from a user initiating a sourcing run to the completion of the orchestration.
+The end-to-end session lifecycle in Scoutbound describes the entire process from a user initiating a sourcing run to the completion of the orchestration.
 
 ## Session Lifecycle States
 

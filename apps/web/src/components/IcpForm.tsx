@@ -25,7 +25,7 @@ export function IcpForm({
   operatorMode = false,
   eyebrow = "Prospect sourcing",
   title = "New prospect sourcing workflow",
-  description = "The agent navigates live company websites and public directories, evaluates each prospect against your ICP, and returns a ranked Revon-ready shortlist.",
+  description = "The agent navigates live company websites and public directories, evaluates each prospect against your ICP, and returns a ranked shortlist.",
   onSubmit,
 }: IcpFormProps) {
   const [form, setForm] = useState<IcpInput>(DEFAULT_DEMO_INPUT);

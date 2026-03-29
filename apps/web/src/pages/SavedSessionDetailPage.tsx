@@ -53,7 +53,7 @@ function sessionRevonStatusLabel(session: PersistedSessionDetail): string {
     return "Push failed";
   }
   if (session.importStatus === "completed") {
-    return session.importDryRun ? "Dry run" : "Pushed to Revon";
+    return session.importDryRun ? "Dry run" : "Synced to CRM";
   }
 
   return "Not attempted";
@@ -198,7 +198,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
       const status = await getRevonStatus();
       setRevonStatus(status);
     } catch (error) {
-      setPageError(error instanceof Error ? error.message : "Failed to push saved session leads.");
+      setPageError(error instanceof Error ? error.message : "Failed to sync saved session leads to CRM.");
     } finally {
       setIsPushing(false);
     }
@@ -222,7 +222,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
     <ConsoleLayout
       activeNav="sessions"
       title="Workflow execution detail"
-      subtitle="Review the qualified prospect shortlist, inspect evidence and contacts, export results, and sync selected prospects to Revon."
+      subtitle="Review the qualified prospect shortlist, inspect evidence and contacts, export results, and sync selected prospects to CRM."
       sectionLinks={sectionLinks}
       activeSectionId={activeTab}
     >
@@ -281,7 +281,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
                   <span className="summary-card-sub">for export / sync</span>
                 </div>
                 <div className="summary-card">
-                  <span className="summary-card-label">Revon sync</span>
+                  <span className="summary-card-label">CRM sync</span>
                   <span className="summary-card-value" style={{ fontSize: "1rem" }}>
                     {sessionRevonStatusLabel(session)}
                   </span>

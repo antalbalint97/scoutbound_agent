@@ -35,10 +35,10 @@ export function ConsoleLayout({
     <main className="console-shell">
       <aside className="console-sidebar">
         <div className="console-brand">
-          <p className="eyebrow">Revon outbound</p>
+          <p className="eyebrow">Scoutbound</p>
           <h1>Prospect sourcing</h1>
           <p className="muted">
-            Autonomous web-agent workflow for prospect discovery, review, export, and CRM sync.
+            Evidence-driven outbound prospect sourcing console
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export function ConsoleLayout({
       <section className="console-main">
         <header className="console-header">
           <div>
-            <p className="eyebrow">Outbound operator console</p>
+            <p className="eyebrow">Scoutbound</p>
             <h2>{title}</h2>
           </div>
           {subtitle ? <p className="console-subtitle">{subtitle}</p> : null}

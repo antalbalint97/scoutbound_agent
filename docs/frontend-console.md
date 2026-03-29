@@ -24,8 +24,8 @@ For each lead found, the console provides an evidence drawer where users can see
 ### 4. Export Surface
 Qualified leads can be exported as a CSV or via integration with supported CRM systems.
 
-### 5. Revon Sync Panel
-A dedicated panel for syncing leads to Revon for outreach. This feature is currently visible but disabled in 'submission' or 'standalone' builds to maintain architectural visibility while preventing live external sync.
+### 5. CRM Sync Panel
+A dedicated panel for syncing leads to a CRM for outreach. This feature is currently visible but disabled in 'submission' or 'standalone' builds to maintain architectural visibility while preventing live external sync.
 
 ## Reference
 - `apps/web/src/pages/ConsoleRunsPage.tsx`

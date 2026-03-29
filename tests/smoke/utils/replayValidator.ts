@@ -2,8 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { leadRecordSchema, type IcpInput, type LeadRecord } from "@revon-tinyfish/contracts";
-import { mapCandidateToLead } from "../../../apps/api/src/domain/leads/mappers";
-import { rankLeads } from "../../../apps/api/src/domain/leads/ranking";
+import { processLeadCandidates } from "../../../apps/api/src/domain/leads/processing";
 import { parseDirectoryCandidates, parseWebsiteInspection } from "../../../apps/api/src/integrations/tinyfish/parseResults";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -40,22 +39,21 @@ export function replaySampleRunFixture(fixture: ReplayFixture): ReplayValidation
   const directoryResult = parseDirectoryCandidates(fixture.directoryRaw);
   const candidates = directoryResult.candidates.slice(0, fixture.websiteRaws.length);
 
-  const leads = rankLeads(
+  const leads = processLeadCandidates(
     fixture.input,
-    candidates.map((candidate, index) => {
-      const inspection = parseWebsiteInspection(fixture.websiteRaws[index], candidate.websiteUrl);
-      return leadRecordSchema.parse(
-        mapCandidateToLead(candidate, inspection, {
-          captureMode: fixture.mode,
-        }),
-      );
-    }),
-  );
+    candidates.map((candidate, index) => ({
+      candidate,
+      inspection: parseWebsiteInspection(fixture.websiteRaws[index], candidate.websiteUrl),
+    })),
+    {
+      captureMode: fixture.mode,
+    },
+  ).map((lead) => leadRecordSchema.parse(lead));
 
   return {
     leads,
     warnings: directoryResult.warnings,
     partialLeadCount: leads.filter((lead) => lead.inspectionStatus !== "completed").length,
-    qualifiedLeadCount: leads.filter((lead) => lead.score.priority !== "low").length,
+    qualifiedLeadCount: leads.filter((lead) => lead.score.qualificationState === "qualified").length,
   };
 }

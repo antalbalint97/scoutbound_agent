@@ -9,16 +9,21 @@
   ],
   "scripts": {
     "dev": "npm-run-all --parallel dev:contracts dev:api dev:web",
+    "start": "npm run start:api",
     "dev:contracts": "npm --workspace @revon-tinyfish/contracts run dev",
     "dev:api": "npm --workspace @revon-tinyfish/api run dev",
     "dev:web": "npm --workspace @revon-tinyfish/web run dev",
+    "start:api": "npm --workspace @revon-tinyfish/api run start",
+    "preview:web": "npm --workspace @revon-tinyfish/web run preview -- --host 0.0.0.0 --port 4173",
     "build": "npm run build:contracts && npm run build:api && npm run build:web",
     "build:contracts": "npm --workspace @revon-tinyfish/contracts run build",
     "build:api": "npm --workspace @revon-tinyfish/api run build",
     "build:web": "npm --workspace @revon-tinyfish/web run build",
+    "db:migrate": "npm --workspace @revon-tinyfish/api run db:migrate",
+    "db:deploy": "npm --workspace @revon-tinyfish/api run db:deploy",
     "typecheck": "npm run build:contracts && npm run typecheck --workspaces --if-present",
     "smoke:fixtures": "tsx tests/smoke/fixture-generator.ts",
-    "test:smoke": "npm run smoke:fixtures && npm exec vitest -- run --config vitest.smoke.config.ts",
+    "test:smoke": "npm run build:contracts && npm run smoke:fixtures && npm exec vitest -- run --config vitest.smoke.config.ts",
     "postinstall": "npm run build:contracts"
   },
   "devDependencies": {

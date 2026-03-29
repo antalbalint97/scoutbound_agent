@@ -1,22 +1,52 @@
 import { useState, type FormEvent } from "react";
-import { icpInputSchema, type IcpInput } from "@revon-tinyfish/contracts";
+import { icpInputSchema, type IcpInput, type StartRunRequest } from "@revon-tinyfish/contracts";
 import { DEFAULT_DEMO_INPUT, DEMO_PRESETS, type DemoPreset } from "../demoPresets";
+import { buildIcpSignature, createCorrelationId, logWebTrace } from "../lib/debugTrace";
 
 interface IcpFormProps {
   isSubmitting: boolean;
-  onSubmit: (input: IcpInput) => Promise<void>;
+  onSubmit: (
+    payload: StartRunRequest,
+    trace: {
+      correlationId: string;
+      payloadSignature: string;
+    },
+  ) => Promise<void>;
 }
 
 export function IcpForm({ isSubmitting, onSubmit }: IcpFormProps) {
   const [form, setForm] = useState<IcpInput>(DEFAULT_DEMO_INPUT);
+  const [experimentLabel, setExperimentLabel] = useState<string>(DEMO_PRESETS[0]?.experimentLabel ?? "");
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
       const parsed = icpInputSchema.parse(form);
+      const correlationId = createCorrelationId();
+      const payloadSignature = buildIcpSignature(parsed);
+
+      logWebTrace("IcpForm.handleSubmit", {
+        correlationId,
+        invocationKey: `submit:${payloadSignature}`,
+        details: {
+          payloadSignature,
+          isSubmitting,
+          experimentLabel,
+        },
+      });
+
       setError(null);
-      await onSubmit(parsed);
+      await onSubmit(
+        {
+          input: parsed,
+          ...(experimentLabel.trim() ? { experimentLabel: experimentLabel.trim() } : {}),
+        },
+        {
+          correlationId,
+          payloadSignature,
+        },
+      );
     } catch (submitError) {
       const message =
         submitError instanceof Error ? submitError.message : "Please review the ICP fields.";
@@ -33,6 +63,7 @@ export function IcpForm({ isSubmitting, onSubmit }: IcpFormProps) {
 
   function applyPreset(preset: DemoPreset) {
     setForm(preset.input);
+    setExperimentLabel(preset.experimentLabel);
     setError(null);
   }
 
@@ -125,6 +156,15 @@ export function IcpForm({ isSubmitting, onSubmit }: IcpFormProps) {
             max={8}
             value={form.maxResults}
             onChange={(event) => updateField("maxResults", Number(event.target.value))}
+          />
+        </label>
+
+        <label>
+          <span>Experiment label</span>
+          <input
+            value={experimentLabel}
+            onChange={(event) => setExperimentLabel(event.target.value)}
+            placeholder="preset_london_digital_agencies"
           />
         </label>
 

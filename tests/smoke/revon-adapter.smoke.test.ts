@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEMO_PRESETS } from "../../apps/web/src/demoPresets";
 import { createMockDirectoryDiscovery, createMockWebsiteInspection } from "../../apps/api/src/mocks/sampleLeads";
-import { mapCandidateToLead } from "../../apps/api/src/domain/leads/mappers";
-import { rankLeads } from "../../apps/api/src/domain/leads/ranking";
+import { processLeadCandidates } from "../../apps/api/src/domain/leads/processing";
 import { pushQualifiedLeadsToRevon } from "../../apps/api/src/integrations/revon/client";
 import { applyEnv } from "./utils/orchestrationHarness";
 
@@ -18,7 +17,20 @@ const input = DEMO_PRESETS[0]?.input ?? {
 function buildLead() {
   const candidate = createMockDirectoryDiscovery({ ...input, maxResults: 1 }).candidates[0]!;
   const inspection = createMockWebsiteInspection(candidate, input, 0);
-  return rankLeads(input, [mapCandidateToLead(candidate, inspection, { captureMode: "mock" })])[0]!;
+  return processLeadCandidates(
+    input,
+    [{ candidate, inspection }],
+    {
+      captureMode: "mock",
+      sessionContext: {
+        agentSessionId: "agent-session-123",
+        correlationId: "corr-123",
+        directoryUrl: candidate.directoryUrl,
+        directoryRunId: "dir-run-123",
+        runStartedAt: "2026-03-29T00:00:00.000Z",
+      },
+    },
+  )[0]!;
 }
 
 describe("revon adapter smoke", () => {
@@ -67,6 +79,12 @@ describe("revon adapter smoke", () => {
       expect(result.requestId).toBe("req-123");
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(String(fetchMock.mock.calls[0]?.[0])).toBe("https://revon.example/import");
+      const request = fetchMock.mock.calls[0]?.[1];
+      const payload = JSON.parse(String(request?.body)) as {
+        leads: Array<{ agent_session_id?: string; raw_payload?: { tinyfish_run_ids?: string[] } }>;
+      };
+      expect(payload.leads[0]?.agent_session_id).toBe("agent-session-123");
+      expect(payload.leads[0]?.raw_payload?.tinyfish_run_ids).toContain("dir-run-123");
     } finally {
       restoreEnv();
       vi.unstubAllGlobals();

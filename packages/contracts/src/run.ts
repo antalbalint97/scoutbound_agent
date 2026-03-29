@@ -4,6 +4,7 @@ import { icpInputSchema, leadRecordSchema } from "./lead.js";
 export const runStatusSchema = z.enum(["running", "completed", "partial", "failed"]);
 export const runModeSchema = z.enum(["live", "mock"]);
 export const runQualitySchema = z.enum(["healthy", "degraded"]);
+export const experimentLabelSchema = z.string().trim().min(1).max(160);
 
 export const runStepKeySchema = z.enum([
   "discovering_companies",
@@ -32,11 +33,18 @@ export const runStepSchema = z.object({
 export const runSummarySchema = z.object({
   directoryUrl: z.string().url().nullable().default(null),
   companiesFound: z.number().int().nonnegative().default(0),
+  totalCompanies: z.number().int().nonnegative().default(0),
+  inspectionsStarted: z.number().int().nonnegative().default(0),
+  inspectionsCompleted: z.number().int().nonnegative().default(0),
+  inspectionsFailed: z.number().int().nonnegative().default(0),
+  inspectionsPartial: z.number().int().nonnegative().default(0),
   websitesVisited: z.number().int().nonnegative().default(0),
   websiteFailures: z.number().int().nonnegative().default(0),
   partialLeadCount: z.number().int().nonnegative().default(0),
   decisionMakersFound: z.number().int().nonnegative().default(0),
   qualifiedLeadCount: z.number().int().nonnegative().default(0),
+  usableLeadCount: z.number().int().nonnegative().default(0),
+  wallTimeMs: z.number().int().nonnegative().default(0),
 });
 
 export const runPushStateSchema = z.object({
@@ -56,6 +64,7 @@ export const demoRunSchema = z.object({
   status: runStatusSchema,
   mode: runModeSchema,
   quality: runQualitySchema,
+  experimentLabel: experimentLabelSchema.default("default"),
   startedAt: z.string(),
   completedAt: z.string().optional(),
   input: icpInputSchema,
@@ -72,6 +81,11 @@ export const startRunResponseSchema = z.object({
   runId: z.string(),
 });
 
+export const startRunRequestSchema = z.object({
+  input: icpInputSchema,
+  experimentLabel: experimentLabelSchema.optional(),
+});
+
 export const pushRunRequestSchema = z.object({
   leadIds: z.array(z.string()).max(20).optional(),
 });
@@ -79,11 +93,13 @@ export const pushRunRequestSchema = z.object({
 export type RunStatus = z.infer<typeof runStatusSchema>;
 export type RunMode = z.infer<typeof runModeSchema>;
 export type RunQuality = z.infer<typeof runQualitySchema>;
+export type ExperimentLabel = z.infer<typeof experimentLabelSchema>;
 export type RunStepKey = z.infer<typeof runStepKeySchema>;
 export type RunStepStatus = z.infer<typeof runStepStatusSchema>;
 export type RunStep = z.infer<typeof runStepSchema>;
 export type RunSummary = z.infer<typeof runSummarySchema>;
 export type RunPushState = z.infer<typeof runPushStateSchema>;
 export type DemoRun = z.infer<typeof demoRunSchema>;
+export type StartRunRequest = z.infer<typeof startRunRequestSchema>;
 export type StartRunResponse = z.infer<typeof startRunResponseSchema>;
 export type PushRunRequest = z.infer<typeof pushRunRequestSchema>;

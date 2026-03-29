@@ -21,7 +21,11 @@ export function EvidencePanel({ lead }: EvidencePanelProps) {
             <p>{lead.summary}</p>
             <p className="muted">
               Capture mode: {lead.captureMode} | Inspection: {lead.inspectionStatus} | Score
-              confidence: {lead.score.confidence}
+              confidence: {lead.score.confidence} | Qualification: {lead.score.qualificationState}
+            </p>
+            <p className="muted">
+              Total {lead.score.totalScore} | Fit {lead.score.fitScore} | Contact {lead.score.contactabilityScore} |
+              Quality {lead.score.qualityScore} | Decision-maker {lead.score.decisionMakerScore}
             </p>
           </div>
 
@@ -31,6 +35,28 @@ export function EvidencePanel({ lead }: EvidencePanelProps) {
               {lead.score.reasons.map((reason) => (
                 <li key={reason}>{reason}</li>
               ))}
+            </ul>
+          </div>
+
+          <div className="evidence-section">
+            <h4>Score breakdown</h4>
+            <ul className="stack-list">
+              <li>
+                <strong>Fit</strong> | {lead.score.explanations.fit.score}
+                <p>{lead.score.explanations.fit.summary}</p>
+              </li>
+              <li>
+                <strong>Contactability</strong> | {lead.score.explanations.contactability.score}
+                <p>{lead.score.explanations.contactability.summary}</p>
+              </li>
+              <li>
+                <strong>Quality</strong> | {lead.score.explanations.quality.score}
+                <p>{lead.score.explanations.quality.summary}</p>
+              </li>
+              <li>
+                <strong>Decision-maker</strong> | {lead.score.explanations.decisionMaker.score}
+                <p>{lead.score.explanations.decisionMaker.summary}</p>
+              </li>
             </ul>
           </div>
 

@@ -2,6 +2,7 @@ import {
   createEmptyWebsiteInspection,
   directoryCandidateSchema,
   inspectionEvidenceSchema,
+  websitePageFindingSchema,
   type DirectoryCandidate,
   type WebsiteInspection,
 } from "../../domain/leads/schemas.js";
@@ -169,16 +170,43 @@ function findFirstArray(value: unknown): unknown[] {
   return Array.isArray(firstArray) ? firstArray : [];
 }
 
-function coerceEvidenceArray(value: unknown): Array<{
-  kind: "directory_listing" | "homepage" | "contact_page" | "about_page" | "team_page" | "footer" | "other";
-  sourceUrl: string;
-  sourceLabel: string;
-  title: string;
-  summary: string;
-  snippet: string | null;
-  confidence: "high" | "medium" | "low";
-  qualityNote: string | null;
-}> {
+function normalizeEvidenceKind(value: unknown):
+  | "directory_listing"
+  | "homepage"
+  | "contact_page"
+  | "about_page"
+  | "team_page"
+  | "footer"
+  | "other" {
+  const kindRaw = coerceString(value).toLowerCase();
+  return [
+    "directory_listing",
+    "homepage",
+    "contact_page",
+    "about_page",
+    "team_page",
+    "footer",
+    "other",
+  ].includes(kindRaw)
+    ? (kindRaw as
+        | "directory_listing"
+        | "homepage"
+        | "contact_page"
+        | "about_page"
+        | "team_page"
+        | "footer"
+        | "other")
+    : "other";
+}
+
+function normalizeConfidence(value: unknown): "high" | "medium" | "low" {
+  const confidenceRaw = coerceString(value).toLowerCase();
+  return ["high", "medium", "low"].includes(confidenceRaw)
+    ? (confidenceRaw as "high" | "medium" | "low")
+    : "medium";
+}
+
+function coerceEvidenceArray(value: unknown): Array<ReturnType<typeof inspectionEvidenceSchema.parse>> {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -195,55 +223,52 @@ function coerceEvidenceArray(value: unknown): Array<{
         return null;
       }
 
-      const kindRaw = coerceString(objectValue.kind).toLowerCase();
-      const kind = [
-        "directory_listing",
-        "homepage",
-        "contact_page",
-        "about_page",
-        "team_page",
-        "footer",
-        "other",
-      ].includes(kindRaw)
-        ? (kindRaw as
-            | "directory_listing"
-            | "homepage"
-            | "contact_page"
-            | "about_page"
-            | "team_page"
-            | "footer"
-            | "other")
-        : "other";
-
-      const confidenceRaw = coerceString(objectValue.confidence).toLowerCase();
-      const confidence = ["high", "medium", "low"].includes(confidenceRaw)
-        ? (confidenceRaw as "high" | "medium" | "low")
-        : "medium";
-
       return inspectionEvidenceSchema.parse({
-        kind,
+        kind: normalizeEvidenceKind(objectValue.kind),
         sourceUrl,
         sourceLabel: coerceString(objectValue.source_label ?? objectValue.sourceLabel),
         title: coerceString(objectValue.title) || "TinyFish evidence",
         summary: coerceString(objectValue.summary),
         snippet: coerceString(objectValue.snippet ?? objectValue.quote) || null,
-        confidence,
+        confidence: normalizeConfidence(objectValue.confidence),
         qualityNote: coerceString(objectValue.quality_note ?? objectValue.qualityNote) || null,
       });
     })
     .filter(
-      (
-        item,
-      ): item is {
-        kind: "directory_listing" | "homepage" | "contact_page" | "about_page" | "team_page" | "footer" | "other";
-        sourceUrl: string;
-        sourceLabel: string;
-        title: string;
-        summary: string;
-        snippet: string | null;
-        confidence: "high" | "medium" | "low";
-        qualityNote: string | null;
-      } => Boolean(item),
+      (item): item is ReturnType<typeof inspectionEvidenceSchema.parse> => Boolean(item),
+    );
+}
+
+function coercePageFindingsArray(
+  value: unknown,
+  fallbackSourceUrl: string,
+): Array<ReturnType<typeof websitePageFindingSchema.parse>> {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry) => {
+      const objectValue = asObject(entry);
+      if (!objectValue) {
+        return null;
+      }
+
+      const sourceUrl =
+        coerceUrl(objectValue.source_url ?? objectValue.sourceUrl ?? objectValue.url) ?? fallbackSourceUrl;
+
+      return websitePageFindingSchema.parse({
+        kind: normalizeEvidenceKind(objectValue.kind ?? objectValue.page_kind ?? objectValue.pageKind),
+        sourceUrl,
+        sourceLabel: coerceString(objectValue.source_label ?? objectValue.sourceLabel),
+        findings: coerceStringArray(objectValue.findings ?? objectValue.facts ?? objectValue.notes),
+        missingFields: coerceStringArray(objectValue.missing_fields ?? objectValue.missingFields),
+        uncertainFields: coerceStringArray(objectValue.uncertain_fields ?? objectValue.uncertainFields),
+        qualityNotes: coerceStringArray(objectValue.quality_notes ?? objectValue.qualityNotes),
+      });
+    })
+    .filter(
+      (item): item is ReturnType<typeof websitePageFindingSchema.parse> => Boolean(item),
     );
 }
 
@@ -282,8 +307,14 @@ export function parseDirectoryCandidates(raw: unknown): DirectoryParseResult {
           objectValue.employee_range ?? objectValue.employeeRange ?? objectValue.company_size,
         ),
         rating: coerceNumber(objectValue.rating),
-        matchReasons: coerceStringArray(
-          objectValue.match_reasons ?? objectValue.matchReasons ?? objectValue.why_match,
+        listingFacts: coerceStringArray(
+          objectValue.listing_facts ??
+            objectValue.listingFacts ??
+            objectValue.visible_facts ??
+            objectValue.facts ??
+            objectValue.match_reasons ??
+            objectValue.matchReasons ??
+            objectValue.why_match,
         ),
         evidenceSnippet:
           coerceString(objectValue.evidence_snippet ?? objectValue.evidenceSnippet ?? objectValue.snippet) || null,
@@ -319,12 +350,11 @@ export function parseWebsiteInspection(raw: unknown, websiteUrl: string): Websit
 
   if (!objectValue) {
     return createEmptyWebsiteInspection(websiteUrl, {
-      qualityNotes: [
-        ...normalized.repairNotes,
-        "TinyFish returned no parseable website inspection object.",
-      ],
+      qualityNotes: [...normalized.repairNotes, "TinyFish returned no parseable website inspection object."],
     });
   }
+
+  const homepageUrl = coerceUrl(objectValue.homepage_url ?? objectValue.homepageUrl ?? websiteUrl) ?? websiteUrl;
 
   const team = Array.isArray(objectValue.team)
     ? objectValue.team
@@ -348,8 +378,12 @@ export function parseWebsiteInspection(raw: unknown, websiteUrl: string): Websit
   const summary = coerceString(objectValue.summary ?? objectValue.company_summary ?? objectValue.description);
   const services = coerceStringArray(objectValue.services);
   const emails = coerceStringArray(objectValue.emails).filter((item) => /@/.test(item));
-  const signals = coerceStringArray(objectValue.signals ?? objectValue.buyer_signals);
   const evidence = coerceEvidenceArray(objectValue.evidence);
+  const pageFindings = coercePageFindingsArray(
+    objectValue.page_findings ?? objectValue.pageFindings,
+    homepageUrl,
+  );
+  const legacySignals = coerceStringArray(objectValue.signals ?? objectValue.buyer_signals);
   const missingFields = coerceStringArray(objectValue.missing_fields ?? objectValue.missingFields);
   const uncertainFields = coerceStringArray(objectValue.uncertain_fields ?? objectValue.uncertainFields);
   const qualityNotes = [
@@ -357,17 +391,31 @@ export function parseWebsiteInspection(raw: unknown, websiteUrl: string): Websit
     ...coerceStringArray(objectValue.quality_notes ?? objectValue.qualityNotes),
   ];
 
+  if (pageFindings.length === 0 && legacySignals.length > 0) {
+    pageFindings.push(
+      websitePageFindingSchema.parse({
+        kind: "homepage",
+        sourceUrl: homepageUrl,
+        sourceLabel: "homepage",
+        findings: legacySignals,
+        missingFields: [],
+        uncertainFields: [],
+        qualityNotes: ["Legacy TinyFish signal output was preserved as raw page findings."],
+      }),
+    );
+  }
+
   if (!summary) {
     missingFields.push("summary");
+  }
+  if (services.length === 0) {
+    missingFields.push("services");
   }
   if (emails.length === 0) {
     missingFields.push("emails");
   }
   if (team.length === 0) {
     missingFields.push("team");
-  }
-  if (signals.length === 0) {
-    missingFields.push("signals");
   }
 
   const uniqueMissingFields = [...new Set(missingFields)];
@@ -379,8 +427,8 @@ export function parseWebsiteInspection(raw: unknown, websiteUrl: string): Websit
     services.length > 0 ||
     emails.length > 0 ||
     team.length > 0 ||
-    signals.length > 0 ||
-    evidence.length > 0;
+    evidence.length > 0 ||
+    pageFindings.length > 0;
 
   const inspectionStatus = !hasAnyStructuredData
     ? "failed"
@@ -389,7 +437,7 @@ export function parseWebsiteInspection(raw: unknown, websiteUrl: string): Websit
       : "completed";
 
   return createEmptyWebsiteInspection(websiteUrl, {
-    homepageUrl: coerceUrl(objectValue.homepage_url ?? objectValue.homepageUrl ?? websiteUrl) ?? websiteUrl,
+    homepageUrl,
     contactPageUrl: coerceUrl(objectValue.contact_page_url ?? objectValue.contactPageUrl),
     aboutPageUrl: coerceUrl(objectValue.about_page_url ?? objectValue.aboutPageUrl),
     teamPageUrl: coerceUrl(objectValue.team_page_url ?? objectValue.teamPageUrl),
@@ -397,8 +445,8 @@ export function parseWebsiteInspection(raw: unknown, websiteUrl: string): Websit
     services,
     emails,
     team,
-    signals,
     evidence,
+    pageFindings,
     inspectionStatus,
     missingFields: uniqueMissingFields,
     uncertainFields: uniqueUncertainFields,

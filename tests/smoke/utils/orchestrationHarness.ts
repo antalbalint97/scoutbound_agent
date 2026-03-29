@@ -1,4 +1,7 @@
 import { getRun, resetRunStore } from "../../../apps/api/src/services/runStore";
+import { resetPersistenceStore } from "../../../apps/api/src/services/persistenceService";
+import { resetDiscoverySessions } from "../../../apps/api/src/services/sessionStore";
+import { resetTelemetryStore } from "../../../apps/api/src/services/telemetryStore";
 
 export function applyEnv(overrides: Record<string, string | undefined>): () => void {
   const previous = new Map<string, string | undefined>();
@@ -38,4 +41,7 @@ export async function waitForRunCompletion(runId: string, timeoutMs: number = 30
 
 export function resetSmokeRunStore(): void {
   resetRunStore();
+  resetDiscoverySessions();
+  resetTelemetryStore();
+  resetPersistenceStore();
 }

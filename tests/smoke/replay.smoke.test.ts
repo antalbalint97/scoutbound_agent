@@ -17,6 +17,7 @@ describe("sample-run replay smoke", () => {
       fixture.expectations.minimumQualifiedLeads,
     );
     expect(result.leads[0]?.score.fitScore).toBeGreaterThanOrEqual(result.leads[1]?.score.fitScore ?? 0);
-    expect(result.leads[0]?.matchReasons.length).toBeGreaterThan(0);
+    expect(result.leads[0]?.score.reasons.length).toBeGreaterThan(0);
+    expect(result.leads[0]?.rawExtraction.directory.listingFacts.length).toBeGreaterThan(0);
   });
 });

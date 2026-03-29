@@ -5,4 +5,4 @@ dist/
 .env.development.local
 .env.production.local
 npm-debug.log*
-
+apps/api/data/

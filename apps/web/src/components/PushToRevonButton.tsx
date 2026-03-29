@@ -5,6 +5,7 @@ interface PushToRevonButtonProps {
   revonStatus: RevonAdapterStatus | null;
   isSubmitting: boolean;
   onPush: () => Promise<void>;
+  selectedLeadIds?: string[] | undefined;
 }
 
 export function PushToRevonButton({
@@ -12,10 +13,16 @@ export function PushToRevonButton({
   revonStatus,
   isSubmitting,
   onPush,
+  selectedLeadIds,
 }: PushToRevonButtonProps) {
+  const selectedLeadIdSet = selectedLeadIds ? new Set(selectedLeadIds) : null;
   const qualifiedCount =
-    run?.leads.filter((lead) => lead.score.priority !== "low").length ?? 0;
-  const canPush = Boolean(run && run.status === "completed" && qualifiedCount > 0);
+    run?.leads.filter(
+      (lead) =>
+        lead.score.qualificationState === "qualified" &&
+        (!selectedLeadIdSet || selectedLeadIdSet.has(lead.id)),
+    ).length ?? 0;
+  const canPush = Boolean(run && (run.status === "completed" || run.status === "partial") && qualifiedCount > 0);
 
   return (
     <section className="panel panel-push">
@@ -41,7 +48,7 @@ export function PushToRevonButton({
         onClick={() => void onPush()}
         type="button"
       >
-        {isSubmitting ? "Pushing..." : `Push ${qualifiedCount} qualified lead(s) to Revon`}
+        {isSubmitting ? "Pushing..." : `Push ${qualifiedCount} selected qualified lead(s) to Revon`}
       </button>
 
       {run?.push.message ? <p className="success-note">{run.push.message}</p> : null}

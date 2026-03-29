@@ -20,7 +20,7 @@ const runs = new Map<string, DemoRun>();
 const STEP_BLUEPRINT: Array<{ key: RunStepKey; label: string }> = [
   { key: "discovering_companies", label: "Finding candidate companies" },
   { key: "visiting_websites", label: "Opening live company websites" },
-  { key: "extracting_contacts", label: "Extracting contacts and buyer signals" },
+  { key: "extracting_contacts", label: "Extracting contacts and structured findings" },
   { key: "ranking_leads", label: "Ranking leads for outreach" },
   { key: "ready_for_revon", label: "Preparing Revon handoff" },
 ];
@@ -53,6 +53,7 @@ export function createRun(
   options: {
     mode: RunMode;
     modeReason?: string;
+    experimentLabel?: string;
   },
 ): DemoRun {
   const run = demoRunSchema.parse({
@@ -60,6 +61,7 @@ export function createRun(
     status: "running",
     mode: options.mode,
     quality: "healthy",
+    experimentLabel: options.experimentLabel ?? "default",
     startedAt: new Date().toISOString(),
     input,
     steps: buildSteps(),
@@ -117,6 +119,12 @@ export function updateSummary(runId: string, patch: Partial<RunSummary>): DemoRu
       ...run.summary,
       ...patch,
     };
+  });
+}
+
+export function updateRunLeads(runId: string, leads: LeadRecord[]): DemoRun | undefined {
+  return mutateRun(runId, (run) => {
+    run.leads = leads;
   });
 }
 

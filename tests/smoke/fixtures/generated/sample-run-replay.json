@@ -10,7 +10,7 @@
     "maxResults": 5
   },
   "mode": "live",
-  "directoryRaw": "\nAgent output:\n```json\n[\n  {\n    \"company_name\": \"Northbridge Growth\",\n    \"website_url\": \"https://www.northbridgegrowth.co.uk\",\n    \"directory_url\": \"https://clutch.co/profile/northbridge-growth\",\n    \"location\": \"London, UK\",\n    \"short_description\": \"B2B SaaS growth marketing agency for revenue teams.\",\n    \"primary_service\": \"Digital marketing\",\n    \"employee_range\": \"11-50\",\n    \"rating\": 4.9,\n    \"match_reasons\": [\"Mentions B2B SaaS growth\", \"London-based agency\"],\n    \"evidence_snippet\": \"B2B SaaS growth marketing for ambitious revenue teams\",\n    \"quality_notes\": []\n  },\n  {\n    \"company_name\": \"Harbor Loop Studio\",\n    \"website_url\": \"harborloop.io\",\n    \"directory_url\": \"https://clutch.co/profile/harbor-loop-studio\",\n    \"location\": \"London, UK\",\n    \"short_description\": \"SEO and content partner for B2B software brands.\",\n    \"primary_service\": \"Digital marketing\",\n    \"employee_range\": \"11-50\",\n    \"rating\": 4.7,\n    \"match_reasons\": [\"Visible SEO and B2B wording\", \"London location visible\"],\n    \"evidence_snippet\": \"SEO and content programs for B2B software brands\",\n    \"quality_notes\": [\"Website URL was normalized from a bare domain string.\"]\n  }\n]\n```\n",
+  "directoryRaw": "\nAgent output:\n```json\n[\n  {\n    \"company_name\": \"Northbridge Growth\",\n    \"website_url\": \"https://www.northbridgegrowth.co.uk\",\n    \"directory_url\": \"https://clutch.co/profile/northbridge-growth\",\n    \"location\": \"London, UK\",\n    \"short_description\": \"B2B SaaS growth marketing agency for revenue teams.\",\n    \"primary_service\": \"Digital marketing\",\n    \"employee_range\": \"11-50\",\n    \"rating\": 4.9,\n    \"listing_facts\": [\"Mentions B2B SaaS growth\", \"London-based agency\"],\n    \"evidence_snippet\": \"B2B SaaS growth marketing for ambitious revenue teams\",\n    \"quality_notes\": []\n  },\n  {\n    \"company_name\": \"Harbor Loop Studio\",\n    \"website_url\": \"harborloop.io\",\n    \"directory_url\": \"https://clutch.co/profile/harbor-loop-studio\",\n    \"location\": \"London, UK\",\n    \"short_description\": \"SEO and content partner for B2B software brands.\",\n    \"primary_service\": \"Digital marketing\",\n    \"employee_range\": \"11-50\",\n    \"rating\": 4.7,\n    \"listing_facts\": [\"Visible SEO and B2B wording\", \"London location visible\"],\n    \"evidence_snippet\": \"SEO and content programs for B2B software brands\",\n    \"quality_notes\": [\"Website URL was normalized from a bare domain string.\"]\n  }\n]\n```\n",
   "websiteRaws": [
     {
       "summary": "Northbridge Growth is a London agency focused on B2B SaaS demand generation.",
@@ -35,10 +35,6 @@
           "role": "Growth Director"
         }
       ],
-      "signals": [
-        "B2B SaaS specialist",
-        "Offers demand generation programs"
-      ],
       "evidence": [
         {
           "kind": "homepage",
@@ -61,11 +57,25 @@
           "quality_note": null
         }
       ],
+      "page_findings": [
+        {
+          "kind": "homepage",
+          "source_url": "https://www.northbridgegrowth.co.uk",
+          "source_label": "homepage",
+          "findings": [
+            "B2B SaaS specialist",
+            "Offers demand generation programs"
+          ],
+          "missing_fields": [],
+          "uncertain_fields": [],
+          "quality_notes": []
+        }
+      ],
       "missing_fields": [],
       "uncertain_fields": [],
       "quality_notes": []
     },
-    "\nThe page review completed. JSON result below.\n{\n  \"summary\": \"Harbor Loop Studio is a London digital agency serving B2B software brands.\",\n  \"services\": [\"SEO\", \"Content strategy\"],\n  \"emails\": [],\n  \"contact_page_url\": \"https://harborloop.io/contact\",\n  \"about_page_url\": null,\n  \"team_page_url\": null,\n  \"team\": [\n    { \"name\": \"Jordan Vale\", \"role\": \"Managing Director\" }\n  ],\n  \"signals\": [\"Mentions B2B software growth programs\"],\n  \"evidence\": [\n    {\n      \"kind\": \"homepage\",\n      \"source_url\": \"https://harborloop.io\",\n      \"source_label\": \"homepage\",\n      \"title\": \"Homepage positioning\",\n      \"summary\": \"Homepage references B2B software growth work.\",\n      \"snippet\": \"SEO and content programs for B2B software brands\",\n      \"confidence\": \"medium\",\n      \"quality_note\": \"No explicit email was visible.\"\n    }\n  ],\n  \"missing_fields\": [\"emails\", \"about_page_url\", \"team_page_url\"],\n  \"uncertain_fields\": [\"decision-maker relevance\"],\n  \"quality_notes\": [\"Only one leadership profile was visible on the site.\"]\n}\n"
+    "\nThe page review completed. JSON result below.\n{\n  \"summary\": \"Harbor Loop Studio is a London digital agency serving B2B software brands.\",\n  \"services\": [\"SEO\", \"Content strategy\"],\n  \"emails\": [],\n  \"contact_page_url\": \"https://harborloop.io/contact\",\n  \"about_page_url\": null,\n  \"team_page_url\": null,\n  \"team\": [\n    { \"name\": \"Jordan Vale\", \"role\": \"Managing Director\" }\n  ],\n  \"evidence\": [\n    {\n      \"kind\": \"homepage\",\n      \"source_url\": \"https://harborloop.io\",\n      \"source_label\": \"homepage\",\n      \"title\": \"Homepage positioning\",\n      \"summary\": \"Homepage references B2B software growth work.\",\n      \"snippet\": \"SEO and content programs for B2B software brands\",\n      \"confidence\": \"medium\",\n      \"quality_note\": \"No explicit email was visible.\"\n    }\n  ],\n  \"page_findings\": [\n    {\n      \"kind\": \"homepage\",\n      \"source_url\": \"https://harborloop.io\",\n      \"source_label\": \"homepage\",\n      \"findings\": [\"Mentions B2B software growth programs\"],\n      \"missing_fields\": [],\n      \"uncertain_fields\": [\"decision-maker relevance\"],\n      \"quality_notes\": []\n    }\n  ],\n  \"missing_fields\": [\"emails\", \"about_page_url\", \"team_page_url\"],\n  \"uncertain_fields\": [\"decision-maker relevance\"],\n  \"quality_notes\": [\"Only one leadership profile was visible on the site.\"]\n}\n"
   ],
   "expectations": {
     "expectedLeadCount": 2,

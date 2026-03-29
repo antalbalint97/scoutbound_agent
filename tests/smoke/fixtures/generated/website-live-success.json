@@ -22,10 +22,6 @@
         "role": "Growth Director"
       }
     ],
-    "signals": [
-      "B2B SaaS specialist",
-      "Offers demand generation programs"
-    ],
     "evidence": [
       {
         "kind": "homepage",
@@ -46,6 +42,20 @@
         "snippet": "hello@northbridgegrowth.co.uk",
         "confidence": "high",
         "quality_note": null
+      }
+    ],
+    "page_findings": [
+      {
+        "kind": "homepage",
+        "source_url": "https://www.northbridgegrowth.co.uk",
+        "source_label": "homepage",
+        "findings": [
+          "B2B SaaS specialist",
+          "Offers demand generation programs"
+        ],
+        "missing_fields": [],
+        "uncertain_fields": [],
+        "quality_notes": []
       }
     ],
     "missing_fields": [],

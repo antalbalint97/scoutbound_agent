@@ -4,6 +4,18 @@ interface RunTimelineProps {
   run: DemoRun | null;
 }
 
+function formatWallTime(ms: number): string {
+  if (ms <= 0) {
+    return "0s";
+  }
+
+  if (ms < 1000) {
+    return `${ms}ms`;
+  }
+
+  return `${(ms / 1000).toFixed(ms >= 10_000 ? 0 : 1)}s`;
+}
+
 function statusLabel(status: DemoRun["steps"][number]["status"]): string {
   if (status === "running") {
     return "Running";
@@ -54,6 +66,7 @@ export function RunTimeline({ run }: RunTimelineProps) {
             <span className={`status-pill mode-${run.mode}`}>
               {run.mode === "live" ? "Live TinyFish" : "Mock backup"}
             </span>
+            <span className="status-pill">Experiment {run.experimentLabel}</span>
             <span className={`status-pill quality-${run.quality}`}>
               {run.quality === "healthy" ? "Healthy" : "Degraded"}
             </span>
@@ -66,6 +79,22 @@ export function RunTimeline({ run }: RunTimelineProps) {
             <article>
               <span>Companies found</span>
               <strong>{run.summary.companiesFound}</strong>
+            </article>
+            <article>
+              <span>Inspections started</span>
+              <strong>{run.summary.inspectionsStarted}</strong>
+            </article>
+            <article>
+              <span>Inspections complete</span>
+              <strong>{run.summary.inspectionsCompleted}</strong>
+            </article>
+            <article>
+              <span>Inspections partial</span>
+              <strong>{run.summary.inspectionsPartial}</strong>
+            </article>
+            <article>
+              <span>Inspections failed</span>
+              <strong>{run.summary.inspectionsFailed}</strong>
             </article>
             <article>
               <span>Websites visited</span>
@@ -87,6 +116,14 @@ export function RunTimeline({ run }: RunTimelineProps) {
               <span>Qualified leads</span>
               <strong>{run.summary.qualifiedLeadCount}</strong>
             </article>
+            <article>
+              <span>Usable leads</span>
+              <strong>{run.summary.usableLeadCount}</strong>
+            </article>
+            <article>
+              <span>Wall time</span>
+              <strong>{formatWallTime(run.summary.wallTimeMs)}</strong>
+            </article>
           </div>
 
           {run.summary.directoryUrl ? (
@@ -97,6 +134,7 @@ export function RunTimeline({ run }: RunTimelineProps) {
               </a>
             </p>
           ) : null}
+          <p className="muted">Telemetry endpoint: /api/telemetry/sessions/{run.id}</p>
 
           <ol className="timeline">
             {run.steps.map((step) => (

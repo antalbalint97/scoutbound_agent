@@ -38,6 +38,10 @@ export function createMockDirectoryDiscovery(input: IcpInput): {
       primaryService: input.targetMarket,
       employeeRange: input.companySize === "any" ? "11-50" : input.companySize,
       rating: 4.7,
+      listingFacts: [
+        `${input.targetMarket} services are visible in the listing`,
+        `${input.location} location is visible in the listing`,
+      ],
     });
   });
 
@@ -66,10 +70,32 @@ export function createMockWebsiteInspection(
       { name: `Alex Mercer ${index + 1}`, role: "Founder" },
       { name: `Jordan Blake ${index + 1}`, role: input.decisionMakerRole },
     ],
-    signals: [
-      `${input.targetMarket} offer is positioned on the homepage`,
-      "Dedicated contact page and named leadership team available",
-      input.keywords || "Fast-moving B2B growth programs highlighted",
+    evidence: [
+      {
+        kind: "homepage",
+        sourceUrl: candidate.websiteUrl,
+        sourceLabel: "homepage",
+        title: "Homepage positioning",
+        summary: `${candidate.companyName} highlights ${input.targetMarket} services.`,
+        snippet: `${input.targetMarket} for ${input.location} teams`,
+        confidence: "high",
+        qualityNote: null,
+      },
+    ],
+    pageFindings: [
+      {
+        kind: "homepage",
+        sourceUrl: candidate.websiteUrl,
+        sourceLabel: "homepage",
+        findings: [
+          `${input.targetMarket} offer is positioned on the homepage`,
+          "Dedicated contact page and named leadership team available",
+          input.keywords || "Fast-moving B2B growth programs highlighted",
+        ],
+        missingFields: [],
+        uncertainFields: [],
+        qualityNotes: [],
+      },
     ],
   });
 }

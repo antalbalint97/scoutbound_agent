@@ -40,9 +40,9 @@ export function buildDirectoryUrl(input: IcpInput): string {
 
 export function buildDirectoryGoal(input: IcpInput): string {
   return `
-Task: extract up to ${input.maxResults} high-confidence company listings from the current directory page only.
+Task: extract up to ${input.maxResults} factual company listings from the current directory page only.
 
-ICP to match:
+Search context for later backend scoring:
 - Target market: ${input.targetMarket}
 - Geography: ${input.location}
 - Preferred company size: ${input.companySize}
@@ -51,7 +51,8 @@ ICP to match:
 Rules:
 - Use only information visible on the current page view.
 - Do not paginate or click external websites.
-- Do not guess websites, ratings, company sizes, or locations.
+- Do not score, rank, qualify, or decide whether a company is a good lead.
+- Do not guess websites, ratings, company sizes, locations, or service categories.
 - If a field is missing, return null for that field.
 - Prefer fewer high-confidence results over broad uncertain output.
 - If no suitable companies are visible, return [].
@@ -66,7 +67,7 @@ Return ONLY a JSON array. Each item must use these exact keys:
   "primary_service": "Main service category or null",
   "employee_range": "11-50 or null",
   "rating": 4.8 or null,
-  "match_reasons": ["short visible reason 1", "short visible reason 2"],
+  "listing_facts": ["short visible fact 1", "short visible fact 2"],
   "evidence_snippet": "short visible listing text snippet or null",
   "quality_notes": ["note about missing or uncertain data"]
 }
@@ -75,15 +76,20 @@ Return ONLY a JSON array. Each item must use these exact keys:
 
 export function buildWebsiteGoal(input: IcpInput): string {
   return `
-Task: inspect this company website and return a small, high-confidence lead discovery summary for Revon.
+Task: inspect this company website and return lean structured extraction for Revon's backend.
 
-Target persona:
-- Prioritize decision-makers relevant to: ${input.decisionMakerRole}
-- ICP context: ${input.targetMarket}
-- Keywords to look for: ${input.keywords || "none"}
+Search context for later backend scoring:
+- Target market: ${input.targetMarket}
+- Geography: ${input.location}
+- Preferred company size: ${input.companySize}
+- Relevant decision-maker titles to capture when explicitly visible: ${input.decisionMakerRole}
+- Keywords worth preserving when explicitly visible: ${input.keywords || "none"}
 
 Rules:
 - Check the homepage first, then contact/about/team pages only when available.
+- Focus on factual extraction from visible pages, not lead qualification.
+- Do not decide whether the company matches the ICP.
+- Do not score, rank, summarize pipeline value, or infer outreach priority.
 - Do not invent team members, titles, or contact details.
 - Only include an email if it is explicitly visible on the site.
 - If a field is missing, use null or [] and record it in "missing_fields".
@@ -101,9 +107,6 @@ Return ONLY one JSON object with these exact keys:
   "team": [
     { "name": "Full Name", "role": "Explicit visible job title" }
   ],
-  "signals": [
-    "high-confidence positioning or ICP-relevant signal"
-  ],
   "evidence": [
     {
       "kind": "homepage | contact_page | about_page | team_page | footer | other",
@@ -116,8 +119,19 @@ Return ONLY one JSON object with these exact keys:
       "quality_note": "null or short uncertainty note"
     }
   ],
+  "page_findings": [
+    {
+      "kind": "homepage | contact_page | about_page | team_page | footer | other",
+      "source_url": "https://...",
+      "source_label": "homepage | contact page | team page",
+      "findings": ["short factual finding 1", "short factual finding 2"],
+      "missing_fields": ["emails"],
+      "uncertain_fields": ["employee count"],
+      "quality_notes": ["short note about ambiguity or limited visibility"]
+    }
+  ],
   "missing_fields": ["emails", "team"],
-  "uncertain_fields": ["decision-maker relevance"],
+  "uncertain_fields": ["team page availability"],
   "quality_notes": ["short operational note about limits or ambiguity"]
 }
 `.trim();

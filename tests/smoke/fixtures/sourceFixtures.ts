@@ -15,7 +15,7 @@ Agent output:
     "primary_service": "Digital marketing",
     "employee_range": "11-50",
     "rating": 4.9,
-    "match_reasons": ["Mentions B2B SaaS growth", "London-based agency"],
+    "listing_facts": ["Mentions B2B SaaS growth", "London-based agency"],
     "evidence_snippet": "B2B SaaS growth marketing for ambitious revenue teams",
     "quality_notes": []
   },
@@ -28,7 +28,7 @@ Agent output:
     "primary_service": "Digital marketing",
     "employee_range": "11-50",
     "rating": 4.7,
-    "match_reasons": ["Visible SEO and B2B wording", "London location visible"],
+    "listing_facts": ["Visible SEO and B2B wording", "London location visible"],
     "evidence_snippet": "SEO and content programs for B2B software brands",
     "quality_notes": ["Website URL was normalized from a bare domain string."]
   }
@@ -47,7 +47,6 @@ export const websiteReplaySuccessRaw = {
     { name: "Maya Ellis", role: "Founder" },
     { name: "Sam Rowe", role: "Growth Director" }
   ],
-  signals: ["B2B SaaS specialist", "Offers demand generation programs"],
   evidence: [
     {
       kind: "homepage",
@@ -70,6 +69,17 @@ export const websiteReplaySuccessRaw = {
       quality_note: null
     }
   ],
+  page_findings: [
+    {
+      kind: "homepage",
+      source_url: "https://www.northbridgegrowth.co.uk",
+      source_label: "homepage",
+      findings: ["B2B SaaS specialist", "Offers demand generation programs"],
+      missing_fields: [],
+      uncertain_fields: [],
+      quality_notes: []
+    }
+  ],
   missing_fields: [],
   uncertain_fields: [],
   quality_notes: []
@@ -87,7 +97,6 @@ The page review completed. JSON result below.
   "team": [
     { "name": "Jordan Vale", "role": "Managing Director" }
   ],
-  "signals": ["Mentions B2B software growth programs"],
   "evidence": [
     {
       "kind": "homepage",
@@ -98,6 +107,17 @@ The page review completed. JSON result below.
       "snippet": "SEO and content programs for B2B software brands",
       "confidence": "medium",
       "quality_note": "No explicit email was visible."
+    }
+  ],
+  "page_findings": [
+    {
+      "kind": "homepage",
+      "source_url": "https://harborloop.io",
+      "source_label": "homepage",
+      "findings": ["Mentions B2B software growth programs"],
+      "missing_fields": [],
+      "uncertain_fields": ["decision-maker relevance"],
+      "quality_notes": []
     }
   ],
   "missing_fields": ["emails", "about_page_url", "team_page_url"],

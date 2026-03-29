@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { PersistedSessionSummary } from "@revon-tinyfish/contracts";
 import { ConsoleLayout } from "../components/ConsoleLayout";
 import { listSavedSessionsPage } from "../lib/api";
+import { getActiveExecution } from "../lib/activeExecution";
 
 interface ConsoleSessionsPageProps {
   onOpenSession: (sessionId: string) => void;
@@ -66,6 +67,12 @@ export function ConsoleSessionsPage({ onOpenSession }: ConsoleSessionsPageProps)
   const [cursorHistory, setCursorHistory] = useState<Array<string | null>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const active = getActiveExecution();
+    setActiveSessionId(active?.sessionId ?? null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,8 +190,20 @@ export function ConsoleSessionsPage({ onOpenSession }: ConsoleSessionsPageProps)
                 </thead>
                 <tbody>
                   {sessions.map((session) => (
-                    <tr key={session.id} onClick={() => onOpenSession(session.id)}>
-                      <td title={session.id}>{session.id.slice(0, 12)}…</td>
+                    <tr
+                      key={session.id}
+                      onClick={() => onOpenSession(session.id)}
+                      className={session.id === activeSessionId ? "active-row" : ""}
+                    >
+                      <td title={session.id}>
+                        {session.id.slice(0, 12)}…
+                        {session.id === activeSessionId && (
+                          <span className="active-marker" title="Currently active session">
+                            {" "}
+                            (Active)
+                          </span>
+                        )}
+                      </td>
                       <td>
                         <LifecycleBadge status={session.lifecycleStatus} />
                       </td>

@@ -21,6 +21,7 @@ import {
 } from "../lib/api";
 import { getEffectiveQualificationState } from "../lib/leadQualification";
 import { toDemoRunFromPersistedSession } from "../lib/persistedRun";
+import { getActiveExecution } from "../lib/activeExecution";
 
 interface SavedSessionDetailPageProps {
   sessionId: string;
@@ -74,6 +75,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
   const [pushSummary, setPushSummary] = useState<PersistedSessionPushResponse["summary"] | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"session-leads" | "session-evidence" | "session-exports" | "session-revon" | "session-telemetry">("session-leads");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +83,9 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
     async function loadPage() {
       setIsLoading(true);
       setPageError(null);
+      setSession(null);
+      setSelectedLeadId(null);
+      setSelectedLeadIds([]);
 
       try {
         const [savedSession, status, variants] = await Promise.all([
@@ -124,6 +129,40 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
       cancelled = true;
     };
   }, [sessionId]);
+
+  useEffect(() => {
+    const activeStates: Array<typeof session.lifecycleStatus> = ["created", "running"];
+    if (!session || !activeStates.includes(session.lifecycleStatus)) {
+      if (session && (session.status === "completed" || session.status === "failed")) {
+        console.log(`[SavedSessionDetailPage] Execution ${session.status}, polling stopped`);
+      }
+      return;
+    }
+
+    console.log(`[SavedSessionDetailPage] Resuming polling for session: ${session.id}`);
+
+    let cancelled = false;
+    const interval = window.setInterval(async () => {
+      setIsRefreshing(true);
+      try {
+        const latestSession = await getSavedSession(session.id);
+        if (!cancelled) {
+          setSession(latestSession);
+        }
+      } catch (error) {
+        console.error("[SavedSessionDetailPage] Polling failed", error);
+      } finally {
+        if (!cancelled) {
+          setIsRefreshing(false);
+        }
+      }
+    }, 3000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [session?.id, session?.lifecycleStatus]);
 
   function toggleLeadSelection(leadId: string) {
     setSelectedLeadIds((current) =>
@@ -232,6 +271,12 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
 
       {pageError ? <p className="inline-error page-error">{pageError}</p> : null}
 
+      {isRefreshing && (
+        <div className="refresh-indicator">
+          <span className="spinner" /> Refreshing execution state…
+        </div>
+      )}
+
       {isLoading ? (
         <section className="panel">
           <div className="summary-cards">
@@ -302,6 +347,12 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
             <div className="results-column">
               {activeTab === "session-leads" && (
                 <div id="session-leads">
+                  {(session.lifecycleStatus === "created" || session.lifecycleStatus === "running") && session.leads.length === 0 && (
+                    <div className="empty-state">
+                      <p className="empty-state-title">Sourcing in progress</p>
+                      <p>Execution is still in progress. Prospect results will appear here as the workflow completes.</p>
+                    </div>
+                  )}
                   <SessionLeadTable
                     leads={session.leads}
                     onSelect={setSelectedLeadId}

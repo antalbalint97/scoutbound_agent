@@ -23,6 +23,11 @@ import {
   pushQualifiedLeads,
   startRun,
 } from "../lib/api";
+import {
+  clearActiveExecution,
+  getActiveExecution,
+  saveActiveExecution,
+} from "../lib/activeExecution";
 
 export function ConsoleRunsPage() {
   const [run, setRun] = useState<DemoRun | null>(null);
@@ -54,15 +59,44 @@ export function ConsoleRunsPage() {
 
     void loadStatus();
 
+    async function restoreSession() {
+      const active = getActiveExecution();
+      if (active) {
+        console.log(`[ConsoleRunsPage] Restoring active session: ${active.sessionId}`);
+        setIsStarting(true);
+        try {
+          const restoredRun = await getRun(active.sessionId);
+          if (!cancelled) {
+            setRun(restoredRun);
+          }
+        } catch (error) {
+          console.error("[ConsoleRunsPage] Failed to restore session", error);
+          clearActiveExecution();
+        } finally {
+          if (!cancelled) {
+            setIsStarting(false);
+          }
+        }
+      }
+    }
+
+    void restoreSession();
+
     return () => {
       cancelled = true;
     };
   }, []);
 
   useEffect(() => {
-    if (!run || run.status !== "running") {
+    const activeStates: Array<DemoRun["status"]> = ["running", "partial"];
+    if (!run || !activeStates.includes(run.status)) {
+      if (run && (run.status === "completed" || run.status === "failed")) {
+        console.log(`[ConsoleRunsPage] Execution ${run.status}, polling stopped`);
+      }
       return;
     }
+
+    console.log(`[ConsoleRunsPage] Resuming polling for run: ${run.id}`);
 
     let cancelled = false;
     const interval = window.setInterval(async () => {
@@ -82,7 +116,7 @@ export function ConsoleRunsPage() {
       cancelled = true;
       window.clearInterval(interval);
     };
-  }, [run]);
+  }, [run?.id, run?.status]);
 
   useEffect(() => {
     if (!run) {
@@ -199,6 +233,10 @@ export function ConsoleRunsPage() {
 
     try {
       const runId = await startRun(input, trace);
+      saveActiveExecution({
+        sessionId: runId,
+        startedAt: new Date().toISOString(),
+      });
       const freshRun = await getRun(runId);
       setRun(freshRun);
     } catch (error) {

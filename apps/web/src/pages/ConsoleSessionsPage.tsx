@@ -141,7 +141,7 @@ export function ConsoleSessionsPage({ onOpenSession }: ConsoleSessionsPageProps)
                   <th>Started</th>
                   <th>Completed</th>
                   <th>Prospects</th>
-                  <th>Revon sync</th>
+                  <th>CRM sync (disabled)</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,7 +178,7 @@ export function ConsoleSessionsPage({ onOpenSession }: ConsoleSessionsPageProps)
                     <th>Started</th>
                     <th>Completed</th>
                     <th>Prospects</th>
-                    <th>Revon sync</th>
+                    <th>CRM sync (disabled)</th>
                   </tr>
                 </thead>
                 <tbody>

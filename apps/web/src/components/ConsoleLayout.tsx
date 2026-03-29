@@ -48,7 +48,7 @@ export function ConsoleLayout({
             onClick={navigateToConsoleRuns}
             type="button"
           >
-            Workflows
+            Launch sourcing
           </button>
           <button
             className={`console-nav-item ${activeNav === "sessions" ? "active" : ""}`}

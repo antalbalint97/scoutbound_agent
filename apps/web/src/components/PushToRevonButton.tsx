@@ -55,12 +55,16 @@ export function PushToRevonButton({
 
       <button
         className="primary-button"
-        disabled={!canPush || isSubmitting}
+        disabled
         onClick={() => void onPush()}
         type="button"
       >
-        {isSubmitting ? "Syncing..." : `Sync ${qualifiedCount} prospect${qualifiedCount !== 1 ? "s" : ""} to Revon`}
+        CRM sync (disabled for submission build)
       </button>
+
+      <p className="muted" style={{ marginTop: "12px", fontStyle: "italic" }}>
+        Revon sync integration is temporarily disabled in this standalone submission build.
+      </p>
 
       {run?.push.message ? <p className="success-note">{run.push.message}</p> : null}
       {run?.push.status === "completed" ? (

@@ -192,35 +192,40 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
       </section>
           <section className="product-preview-section">
         <div className="panel-header compact preview-header">
-          <p className="eyebrow">Inside the operator console</p>
-          <h2>Manage the full sourcing lifecycle</h2>
+          <p className="eyebrow">Product capabilities</p>
+          <h2>Inside the operator console</h2>
         </div>
-        <div className="preview-card summary-card">
-          <div className="preview-nav">
-            <span className="preview-nav-item">launch workflows</span>
-            <span className="preview-nav-item active">monitor execution trace</span>
-            <span className="preview-nav-item">inspect ranked prospects</span>
-            <span className="preview-nav-item">open evidence drawer</span>
-            <span className="preview-nav-item">export JSON / CSV</span>
-            <span className="preview-nav-item">sync to Revon</span>
+        <div className="summary-cards" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+          <div className="summary-card">
+            <span className="summary-card-label">Execution</span>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Launch sourcing workflows</p>
+            <p className="summary-card-sub">Define ICP parameters and initiate autonomous web agent runs.</p>
           </div>
-          <div className="preview-body">
-             <div className="skeleton skeleton-line wide" style={{ marginBottom: '12px' }}></div>
-             <div className="skeleton skeleton-line medium" style={{ marginBottom: '12px' }}></div>
-             <div className="skeleton skeleton-line short"></div>
+          <div className="summary-card">
+            <span className="summary-card-label">Monitoring</span>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Monitor live execution trace</p>
+            <p className="summary-card-sub">Track agent reasoning and browser actions in real-time.</p>
           </div>
-        </div>
-      </section>
-          <section className="final-cta-section panel">
-        <h2>Launch a sourcing workflow or inspect past executions</h2>
-        <p className="cta-supporting-line">TinyFish powers the live web execution layer inside a real outbound operations workflow.</p>
-        <div className="button-row justify-center">
-          <button className="primary-button" onClick={navigateToConsoleRuns} type="button">
-            Open operator console
-          </button>
-          <button className="secondary-button" onClick={navigateToConsoleSessions} type="button">
-            Browse workflow history
-          </button>
+          <div className="summary-card">
+            <span className="summary-card-label">Review</span>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Review ranked prospects</p>
+            <p className="summary-card-sub">Inspect automatically scored leads based on ICP fit.</p>
+          </div>
+          <div className="summary-card">
+            <span className="summary-card-label">Evidence</span>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Inspect evidence and contacts</p>
+            <p className="summary-card-sub">Access captured screenshots and extracted contact signals.</p>
+          </div>
+          <div className="summary-card">
+            <span className="summary-card-label">Export</span>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Export JSON / CSV shortlists</p>
+            <p className="summary-card-sub">Download qualified prospect data for external tools.</p>
+          </div>
+          <div className="summary-card">
+            <span className="summary-card-label">Integration</span>
+            <p className="summary-card-value" style={{ fontSize: "1.1rem", marginBottom: "8px" }}>Sync qualified leads to Revon</p>
+            <p className="summary-card-sub">(disabled in submission build)</p>
+          </div>
         </div>
       </section>
     </main>

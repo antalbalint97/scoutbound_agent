@@ -199,7 +199,7 @@ export function SessionLeadTable({
               <th>Inspection</th>
               <th>Contacts</th>
               <SortTh sortKey="sync" activeKey={sortKey} dir={sortDir} onSort={handleSort}>
-                Revon sync
+                CRM sync (disabled)
               </SortTh>
             </tr>
           </thead>

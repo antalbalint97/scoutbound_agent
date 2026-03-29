@@ -210,7 +210,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
     { id: "session-leads", label: "Prospects", onClick: () => setActiveTab("session-leads") as void },
     { id: "session-evidence", label: "Evidence", onClick: () => setActiveTab("session-evidence") as void },
     { id: "session-exports", label: "Exports", onClick: () => setActiveTab("session-exports") as void },
-    { id: "session-revon", label: "Revon sync", onClick: () => setActiveTab("session-revon") as void },
+    { id: "session-revon", label: "CRM sync (disabled)", onClick: () => setActiveTab("session-revon") as void },
   ];
 
   if (session?.telemetry) {

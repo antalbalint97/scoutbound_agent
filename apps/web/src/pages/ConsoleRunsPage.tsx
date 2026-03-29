@@ -238,7 +238,7 @@ export function ConsoleRunsPage() {
       subtitle="Configure ICP parameters, launch an autonomous sourcing workflow, and inspect the qualified prospect shortlist as it forms."
       sectionLinks={[
         { id: "console-runs-leads", label: "Prospects" },
-        { id: "console-runs-revon", label: "Revon sync" },
+        { id: "console-runs-revon", label: "CRM sync (disabled)" },
         { id: "console-runs-telemetry", label: "Telemetry" },
       ]}
     >

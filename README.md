@@ -1,6 +1,6 @@
-# Revon Autonomous Lead Discovery Agent
+# Scoutbound
 
-Focused TinyFish hackathon prototype for autonomous lead discovery. This repo is a public, reviewable demo slice of Revon, not the private full product.
+Scoutbound is an autonomous outbound prospect sourcing application powered by TinyFish web agents. Scoutbound is designed as a sourcing module for the Revon outbound operations platform.
 
 ## What is public here
 
@@ -8,9 +8,9 @@ Focused TinyFish hackathon prototype for autonomous lead discovery. This repo is
 - Orchestration API
 - TinyFish prompts, parsing, and adapters
 - Shared contracts and schemas
-- Narrow Revon push adapter
+- Narrow CRM push adapter (Revon-compatible)
 
-## What stays private in Revon
+## CRM integration and data privacy
 
 - Auth and tenant logic
 - Database models
@@ -142,8 +142,8 @@ Backend:
 - `TINYFISH_API_KEY`
 - `TINYFISH_FORCE_MOCK=false`
 - `TINYFISH_ENABLE_MOCK_FALLBACK=true` or `false`
-- `REVON_DRY_RUN=true` unless you want real Revon push
-- `REVON_IMPORT_URL` and `REVON_API_TOKEN` for live Revon handoff
+- `REVON_DRY_RUN=true` unless you want real CRM sync
+- `REVON_IMPORT_URL` and `REVON_API_TOKEN` for live CRM handoff
 
 Frontend:
 
@@ -221,7 +221,7 @@ Recommended minimal backend requirements:
 
 - Node 22+
 - persistent disk for SQLite
-- outbound network access for TinyFish and optional Revon webhook calls
+- outbound network access for TinyFish and optional CRM webhook calls
 
 If your host does not support a persistent disk, keep the same code and move to Postgres later. For this hackathon repo, SQLite plus a disk is the thinnest reliable setup.
 
@@ -313,9 +313,9 @@ Review-friendly columns:
 
 The CSV includes a UTF-8 BOM for Excel compatibility.
 
-## Revon push payload structure
+## CRM sync payload structure
 
-The Revon handoff stays narrow and agent-native:
+The CRM handoff stays narrow and agent-native:
 
 - `source`
 - `runId`
@@ -367,9 +367,9 @@ Recommended run settings:
 Before the demo:
 
 1. Confirm `.env` is present and `TINYFISH_API_KEY` is set
-2. Decide whether Revon push should be `live` or `dry-run`
+2. Decide whether CRM sync should be `live` or `dry-run`
 3. Start the app with `npm run dev`
-4. Open the UI and confirm the Revon destination badge is what you expect
+4. Open the UI and confirm the CRM destination badge is what you expect
 5. Use the recommended preset for the safest live path
 
 During the demo:
@@ -378,7 +378,7 @@ During the demo:
 2. Start the run and narrate the step timeline as TinyFish moves through directory discovery and website inspection
 3. Open one or two leads and show the evidence panel
 4. Call out the score reasons and any quality notes
-5. Push the qualified leads to Revon and mention whether it is a live push or a dry-run
+5. Push the qualified leads to CRM and mention whether it is a live sync or a dry-run
 
 ## Recovery notes
 
@@ -393,10 +393,10 @@ If live discovery fails entirely:
 - The UI will label that mode clearly
 - Do not present that run as live TinyFish output
 
-If Revon push is not configured:
+If CRM sync is not configured:
 
 - Leave `REVON_DRY_RUN=true`
-- The push step will stay reviewable and explicit without touching private infrastructure
+- The sync step will stay reviewable and explicit without touching private infrastructure
 
 ## Verification
 

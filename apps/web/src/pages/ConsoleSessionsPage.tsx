@@ -39,15 +39,15 @@ function LifecycleBadge({ status }: { status: PersistedSessionSummary["lifecycle
   );
 }
 
-function revonSyncLabel(session: PersistedSessionSummary): string {
+function crmSyncLabel(session: PersistedSessionSummary): string {
   if (session.importStatus === "running") return "Pending";
   if (session.importStatus === "error") return "Failed";
   if (session.importStatus === "completed") return session.importDryRun ? "Dry run" : "Synced";
   return "—";
 }
 
-function RevonSyncBadge({ session }: { session: PersistedSessionSummary }) {
-  const label = revonSyncLabel(session);
+function CrmSyncBadge({ session }: { session: PersistedSessionSummary }) {
+  const label = crmSyncLabel(session);
   const cls =
     label === "Synced"
       ? "sync-synced"
@@ -202,7 +202,7 @@ export function ConsoleSessionsPage({ onOpenSession }: ConsoleSessionsPageProps)
                         </span>
                       </td>
                       <td>
-                        <RevonSyncBadge session={session} />
+                        <CrmSyncBadge session={session} />
                       </td>
                     </tr>
                   ))}

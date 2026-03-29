@@ -76,10 +76,10 @@ function deriveRevonStatusLabel(
     return "Push failed";
   }
   if (pushStatus === "succeeded") {
-    return importedToRevon ? "Imported to Revon" : "Push succeeded";
+    return importedToRevon ? "Synced to CRM" : "Push succeeded";
   }
 
-  return importedToRevon ? "Imported to Revon" : "Not attempted";
+  return importedToRevon ? "Synced to CRM" : "Not attempted";
 }
 
 function derivePersistedSessionLifecycleStatus(params: {

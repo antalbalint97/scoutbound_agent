@@ -64,6 +64,7 @@ interface OrchestrationConfig {
   pollIntervalMs: number;
   asyncRunTimeoutMs: number;
   inspectionConcurrency: number;
+  maxCompaniesToInspect: number;
 }
 
 interface PollResult {
@@ -158,14 +159,17 @@ function combineStatus(base: RunStatus, degraded: boolean): Extract<RunStatus, "
 function resolveOrchestrationConfig(): OrchestrationConfig {
   const pollIntervalMs = Number.parseInt(process.env.TINYFISH_POLL_INTERVAL_MS ?? "3000", 10);
   const asyncRunTimeoutMs = Number.parseInt(process.env.TINYFISH_ASYNC_RUN_TIMEOUT_MS ?? "300000", 10);
-  const inspectionConcurrency = Number.parseInt(process.env.TINYFISH_INSPECTION_CONCURRENCY ?? "2", 10);
+  const inspectionConcurrency = Number.parseInt(process.env.TINYFISH_INSPECTION_CONCURRENCY ?? "4", 10);
+  const maxCompaniesToInspect = Number.parseInt(process.env.TINYFISH_MAX_COMPANIES_TO_INSPECT ?? "5", 10);
 
   return {
     pollIntervalMs: Number.isFinite(pollIntervalMs) && pollIntervalMs > 500 ? pollIntervalMs : 3000,
     asyncRunTimeoutMs:
       Number.isFinite(asyncRunTimeoutMs) && asyncRunTimeoutMs > 30_000 ? asyncRunTimeoutMs : 300_000,
     inspectionConcurrency:
-      Number.isFinite(inspectionConcurrency) && inspectionConcurrency > 0 ? inspectionConcurrency : 2,
+      Number.isFinite(inspectionConcurrency) && inspectionConcurrency > 0 ? inspectionConcurrency : 4,
+    maxCompaniesToInspect:
+      Number.isFinite(maxCompaniesToInspect) && maxCompaniesToInspect > 0 ? maxCompaniesToInspect : 5,
   };
 }
 
@@ -528,6 +532,9 @@ async function executeLiveAsyncRun(
   }
 
   const config = resolveOrchestrationConfig();
+  console.log("inspection concurrency:", config.inspectionConcurrency);
+  console.log("inspection candidate cap:", config.maxCompaniesToInspect);
+
   let quality: RunQuality = "healthy";
   const runNotes: string[] = [];
 
@@ -611,6 +618,8 @@ async function executeLiveAsyncRun(
     directoryTask.directoryUrl,
     directorySnapshot.result,
   );
+
+  discovery.candidates = discovery.candidates.slice(0, config.maxCompaniesToInspect);
 
   if (discovery.candidates.length === 0) {
     throw new Error("No candidate companies were found in the selected directory slice.");

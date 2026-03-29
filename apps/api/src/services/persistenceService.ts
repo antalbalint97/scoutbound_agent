@@ -216,7 +216,7 @@ function mapSessionSummary(row: Record<string, unknown>): PersistedSessionSummar
   const status = demoRunSchema.shape.status.parse(row.status);
   const completedAt = asNullableString(row.completed_at);
   const leadCount = Number(row.lead_count ?? 0);
-  const qualifiedLeadCount = Number(row.qualified_lead_count ?? 0);
+  const qualifiedLeadCount = Number(row.live_qualified_lead_count ?? row.qualified_lead_count ?? 0);
   const importStatus = demoRunSchema.shape.push.shape.status.parse(row.import_status);
   const importPushedAt = asNullableString(row.import_pushed_at);
   const pushedLeadCount = Number(row.pushed_lead_count ?? 0);
@@ -512,7 +512,14 @@ export async function listPersistedSessions(
                   WHERE
                     discovery_leads.session_id = discovery_sessions.id
                     AND discovery_leads.revon_push_status IN ('dry_run', 'succeeded', 'dry-run', 'imported')
-                ) AS pushed_lead_count
+                ) AS pushed_lead_count,
+                (
+                  SELECT COUNT(*)
+                  FROM discovery_leads
+                  WHERE
+                    discovery_leads.session_id = discovery_sessions.id
+                    AND COALESCE(discovery_leads.operator_qualification_state, discovery_leads.qualification_state) = 'qualified'
+                ) AS live_qualified_lead_count
               FROM discovery_sessions
               WHERE
                 started_at < @startedAt
@@ -537,7 +544,14 @@ export async function listPersistedSessions(
                   WHERE
                     discovery_leads.session_id = discovery_sessions.id
                     AND discovery_leads.revon_push_status IN ('dry_run', 'succeeded', 'dry-run', 'imported')
-                ) AS pushed_lead_count
+                ) AS pushed_lead_count,
+                (
+                  SELECT COUNT(*)
+                  FROM discovery_leads
+                  WHERE
+                    discovery_leads.session_id = discovery_sessions.id
+                    AND COALESCE(discovery_leads.operator_qualification_state, discovery_leads.qualification_state) = 'qualified'
+                ) AS live_qualified_lead_count
               FROM discovery_sessions
               ORDER BY started_at DESC, id DESC
               LIMIT ?

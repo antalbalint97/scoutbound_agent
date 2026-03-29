@@ -37,8 +37,17 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
 
     void loadSessions();
 
+    function handleVisibilityChange() {
+      if (!document.hidden) {
+        void loadSessions();
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 

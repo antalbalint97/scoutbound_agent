@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { PersistedLeadRecord } from "@revon-tinyfish/contracts";
+import type { PersistedLeadRecord, PersistedSessionDetail } from "@revon-tinyfish/contracts";
 import { getEffectiveQualificationState } from "../lib/leadQualification";
 import { updateLeadQualification } from "../lib/api";
 
@@ -10,6 +10,7 @@ interface SessionLeadTableProps {
   onSelect: (leadId: string) => void;
   onToggleLeadSelection: (leadId: string) => void;
   onSelectLeads?: (leadIds: string[]) => void;
+  onSessionUpdate?: (session: PersistedSessionDetail) => void;
 }
 
 type SortKey = "score" | "confidence" | "qualification" | "sync";
@@ -125,6 +126,7 @@ export function SessionLeadTable({
   onSelect,
   onToggleLeadSelection,
   onSelectLeads,
+  onSessionUpdate,
 }: SessionLeadTableProps) {
   const [sortKey, setSortKey] = useState<SortKey | null>("qualification");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -181,6 +183,7 @@ export function SessionLeadTable({
         operatorQualificationState: state,
       });
       setLocalLeads(updatedSession.leads);
+      onSessionUpdate?.(updatedSession);
     } catch (error) {
       console.error("Failed to update lead qualification:", error);
       setLocalLeads(snapshot);

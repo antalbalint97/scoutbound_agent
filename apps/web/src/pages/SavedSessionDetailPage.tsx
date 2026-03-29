@@ -357,6 +357,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
                     leads={session.leads}
                     onSelect={setSelectedLeadId}
                     onSelectLeads={setSelectedLeadIds}
+                    onSessionUpdate={setSession}
                     onToggleLeadSelection={toggleLeadSelection}
                     selectedLeadId={selectedLeadId}
                     selectedLeadIds={selectedLeadIds}

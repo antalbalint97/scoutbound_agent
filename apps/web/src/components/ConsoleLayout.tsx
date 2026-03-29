@@ -9,7 +9,9 @@ interface ConsoleLayoutProps {
   sectionLinks?: Array<{
     id: string;
     label: string;
+    onClick?: () => void;
   }>;
+  activeSectionId?: string;
 }
 
 export function ConsoleLayout({
@@ -18,6 +20,7 @@ export function ConsoleLayout({
   activeNav,
   children,
   sectionLinks = [],
+  activeSectionId,
 }: ConsoleLayoutProps) {
   function scrollToSection(id: string) {
     const target = document.getElementById(id);
@@ -56,14 +59,28 @@ export function ConsoleLayout({
           </button>
           {sectionLinks.map((item) => (
             <button
-              className="console-nav-item subtle"
+              className={`console-nav-item subtle ${activeSectionId === item.id ? "active" : ""}`}
               key={item.id}
-              onClick={() => scrollToSection(item.id)}
+              onClick={() => {
+                if (item.onClick) {
+                  item.onClick();
+                } else {
+                  scrollToSection(item.id);
+                }
+              }}
               type="button"
             >
               {item.label}
             </button>
           ))}
+          <button
+            className="console-nav-item"
+            style={{ marginTop: "16px", color: "var(--muted)", borderTop: "1px solid var(--stroke)", borderRadius: 0, paddingTop: "16px" }}
+            onClick={() => window.location.href = "/"}
+            type="button"
+          >
+            ← Back to landing
+          </button>
         </nav>
       </aside>
 

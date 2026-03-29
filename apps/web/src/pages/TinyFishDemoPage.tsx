@@ -64,26 +64,32 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
         <section className="panel landing-panel hero-snapshot">
           <div className="panel-header compact">
             <p className="eyebrow">Live sourcing overview</p>
-            <h2>Active workflow</h2>
+            <h2>{savedSessions.length > 0 ? "Latest workflow snapshot" : "No workflow executed yet"}</h2>
           </div>
-          <div className="summary-cards">
-            <div className="summary-card">
-              <span className="summary-card-label">Prospects discovered</span>
-              <span className="summary-card-value">142</span>
+          {savedSessions.length > 0 ? (
+            <div className="summary-cards">
+              <div className="summary-card">
+                <span className="summary-card-label">Prospects discovered</span>
+                <span className="summary-card-value">{savedSessions[0].leadCount}</span>
+              </div>
+              <div className="summary-card">
+                <span className="summary-card-label">Qualified</span>
+                <span className="summary-card-value" style={{ color: "#2e7750" }}>{savedSessions[0].qualifiedLeadCount}</span>
+              </div>
+              <div className="summary-card">
+                <span className="summary-card-label">Evidence captured</span>
+                <span className="summary-card-value">-</span>
+              </div>
+              <div className="summary-card">
+                <span className="summary-card-label">CRM sync ready</span>
+                <span className="summary-card-value">{savedSessions[0].qualifiedLeadCount}</span>
+              </div>
             </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Qualified</span>
-              <span className="summary-card-value" style={{ color: "#2e7750" }}>38</span>
+          ) : (
+            <div className="empty-state" style={{ padding: "0 0 16px 0", textAlign: "left", alignItems: "flex-start" }}>
+              <p style={{ maxWidth: "100%" }}>Launch a sourcing workflow to see real prospect, qualification, evidence, and CRM sync metrics here.</p>
             </div>
-            <div className="summary-card">
-              <span className="summary-card-label">Evidence captured</span>
-              <span className="summary-card-value">114</span>
-            </div>
-            <div className="summary-card">
-              <span className="summary-card-label">CRM sync ready</span>
-              <span className="summary-card-value">38</span>
-            </div>
-          </div>
+          )}
         </section>
       </section>
 

@@ -72,6 +72,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
   const [includeTelemetry, setIncludeTelemetry] = useState(true);
   const [pushSummary, setPushSummary] = useState<PersistedSessionPushResponse["summary"] | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"session-leads" | "session-evidence" | "session-exports" | "session-revon" | "session-telemetry">("session-leads");
 
   useEffect(() => {
     let cancelled = false;
@@ -205,17 +206,24 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
   const selectedLead = session?.leads.find((lead) => lead.id === selectedLeadId) ?? null;
   const demoRun = session ? toDemoRunFromPersistedSession(session) : null;
 
+  const sectionLinks = [
+    { id: "session-leads", label: "Prospects", onClick: () => setActiveTab("session-leads") as void },
+    { id: "session-evidence", label: "Evidence", onClick: () => setActiveTab("session-evidence") as void },
+    { id: "session-exports", label: "Exports", onClick: () => setActiveTab("session-exports") as void },
+    { id: "session-revon", label: "Revon sync", onClick: () => setActiveTab("session-revon") as void },
+  ];
+
+  if (session?.telemetry) {
+    sectionLinks.push({ id: "session-telemetry", label: "Telemetry", onClick: () => setActiveTab("session-telemetry") as void });
+  }
+
   return (
     <ConsoleLayout
       activeNav="sessions"
       title="Workflow execution detail"
       subtitle="Review the qualified prospect shortlist, inspect evidence and contacts, export results, and sync selected prospects to Revon."
-      sectionLinks={[
-        { id: "session-leads", label: "Prospects" },
-        { id: "session-exports", label: "Exports" },
-        { id: "session-revon", label: "Revon sync" },
-        { id: "session-telemetry", label: "Telemetry" },
-      ]}
+      sectionLinks={sectionLinks}
+      activeSectionId={activeTab}
     >
       <button className="secondary-button inline-back" onClick={onBack} type="button">
         Back to workflow history
@@ -289,44 +297,56 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
             );
           })()}
 
-          <section className="console-grid console-grid-detail">
+          <section className="console-grid">
             <div className="results-column">
-              <div id="session-leads">
-                <SessionLeadTable
-                  leads={session.leads}
-                  onSelect={setSelectedLeadId}
-                  onSelectLeads={setSelectedLeadIds}
-                  onToggleLeadSelection={toggleLeadSelection}
-                  selectedLeadId={selectedLeadId}
-                  selectedLeadIds={selectedLeadIds}
-                />
-              </div>
+              {activeTab === "session-leads" && (
+                <div id="session-leads">
+                  <SessionLeadTable
+                    leads={session.leads}
+                    onSelect={setSelectedLeadId}
+                    onSelectLeads={setSelectedLeadIds}
+                    onToggleLeadSelection={toggleLeadSelection}
+                    selectedLeadId={selectedLeadId}
+                    selectedLeadIds={selectedLeadIds}
+                  />
+                </div>
+              )}
 
-              <div id="session-exports">
-                <ExportPanel
-                  exportSuccess={exportSuccess}
-                  includeTelemetry={includeTelemetry}
-                  isExportingCsv={isExportingCsv}
-                  isExportingJson={isExportingJson}
-                  onDownloadCsv={() => void handleDownloadCsv()}
-                  onDownloadJson={handleDownloadJson}
-                  onToggleIncludeTelemetry={setIncludeTelemetry}
-                  selectedCount={selectedLeadIds.length}
-                />
-              </div>
+              {activeTab === "session-evidence" && (
+                <div id="session-evidence">
+                  <EvidencePanel lead={selectedLead} />
+                </div>
+              )}
 
-              <div id="session-revon">
-                <PushToRevonButton
-                  isSubmitting={isPushing}
-                  onPush={handlePush}
-                  revonStatus={revonStatus}
-                  run={demoRun}
-                  selectedLeadIds={selectedLeadIds}
-                  summary={pushSummary ?? undefined}
-                />
-              </div>
+              {activeTab === "session-exports" && (
+                <div id="session-exports">
+                  <ExportPanel
+                    exportSuccess={exportSuccess}
+                    includeTelemetry={includeTelemetry}
+                    isExportingCsv={isExportingCsv}
+                    isExportingJson={isExportingJson}
+                    onDownloadCsv={() => void handleDownloadCsv()}
+                    onDownloadJson={handleDownloadJson}
+                    onToggleIncludeTelemetry={setIncludeTelemetry}
+                    selectedCount={selectedLeadIds.length}
+                  />
+                </div>
+              )}
 
-              {includeTelemetry && session.telemetry ? (
+              {activeTab === "session-revon" && (
+                <div id="session-revon">
+                  <PushToRevonButton
+                    isSubmitting={isPushing}
+                    onPush={handlePush}
+                    revonStatus={revonStatus}
+                    run={demoRun}
+                    selectedLeadIds={selectedLeadIds}
+                    summary={pushSummary ?? undefined}
+                  />
+                </div>
+              )}
+
+              {activeTab === "session-telemetry" && includeTelemetry && session.telemetry && (
                 <div id="session-telemetry">
                   <TelemetryPanel
                     error={null}
@@ -336,12 +356,8 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
                     variantSummary={variantSummary}
                   />
                 </div>
-              ) : null}
+              )}
             </div>
-
-            <aside className="drawer-column">
-              <EvidencePanel lead={selectedLead} />
-            </aside>
           </section>
         </>
       ) : null}

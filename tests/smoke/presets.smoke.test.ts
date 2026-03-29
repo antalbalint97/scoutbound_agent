@@ -19,6 +19,6 @@ describe("preset validation smoke", () => {
       expect(preset.input.maxResults).toBeLessThanOrEqual(8);
     }
 
-    expect(recommended[0]?.id).toBe("london-digital-marketing");
+    expect(recommended[0]?.id).toBe("uk-digital-agencies");
   });
 });

@@ -1374,3 +1374,14 @@ select {
     grid-template-columns: 1fr;
   }
 }
+.raw-block {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  white-space: pre;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(49, 38, 26, 0.08);
+}

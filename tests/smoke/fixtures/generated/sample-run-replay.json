@@ -1,12 +1,12 @@
 {
   "id": "recommended-live-replay",
-  "presetId": "london-digital-marketing",
+  "presetId": "uk-digital-agencies",
   "input": {
-    "targetMarket": "Digital marketing",
-    "location": "London",
+    "targetMarket": "Digital marketing agencies",
+    "location": "United Kingdom",
     "companySize": "11-50",
-    "keywords": "B2B, SaaS, growth",
-    "decisionMakerRole": "Founder",
+    "keywords": "B2B clients, performance marketing, paid media",
+    "decisionMakerRole": "Marketing Director",
     "maxResults": 5
   },
   "mode": "live",

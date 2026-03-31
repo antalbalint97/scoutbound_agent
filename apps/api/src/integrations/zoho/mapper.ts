@@ -15,7 +15,7 @@ export interface ZohoLead {
 function splitName(fullName: string): { First_Name?: string; Last_Name: string } {
   const parts = fullName.trim().split(/\s+/);
   if (parts.length === 1) {
-    return { Last_Name: parts[0] };
+    return { Last_Name: parts[0]! };
   }
   const last = parts.pop()!;
   return { First_Name: parts.join(" "), Last_Name: last };

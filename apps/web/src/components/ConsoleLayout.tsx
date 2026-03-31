@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Target, Rocket, History, ArrowLeft, ChevronRight } from "lucide-react";
+import { Rocket, History, ArrowLeft, ChevronRight } from "lucide-react";
 import { navigateToConsoleRuns, navigateToConsoleSessions } from "../lib/routes";
 
 interface ConsoleLayoutProps {
@@ -36,22 +36,8 @@ export function ConsoleLayout({
     <main className="console-shell" data-testid="console-shell">
       <aside className="console-sidebar" data-testid="console-sidebar">
         <div className="console-brand">
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-            <div style={{
-              width: 32,
-              height: 32,
-              background: "var(--brand-primary)",
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white"
-            }}>
-              <Target size={16} />
-            </div>
-            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "1rem" }}>
-              Scoutbound
-            </span>
+          <div style={{ marginBottom: 16 }}>
+            <img src="/scoutbound_logo_dark_2x.png" alt="Scoutbound" style={{ height: 24, width: "auto" }} />
           </div>
           <h1>Prospect Sourcing</h1>
           <p className="muted">

@@ -349,7 +349,7 @@ img {
 /* ─── TinyFish Rationale Section ────────────────────────────────────────── */
 .tf-rationale {
   padding: 96px 0;
-  background: var(--brand-accent);
+  background: var(--brand-primary);
   color: var(--text-inverse);
   margin: 0 -9999px;
   padding-left: 9999px;

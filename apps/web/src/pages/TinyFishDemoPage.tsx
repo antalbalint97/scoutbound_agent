@@ -52,6 +52,22 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
   }, []);
 
   return (
+    <>
+    <nav className="landing-nav">
+      <div className="landing-nav-inner">
+        <div className="landing-logo">
+          <img src="/scoutbound_logo_dark_2x.png" alt="Scoutbound" style={{ height: 28, width: "auto" }} />
+        </div>
+        <div className="landing-nav-actions">
+          <button className="ghost-button" onClick={navigateToConsoleSessions} type="button">
+            History
+          </button>
+          <button className="primary-button" onClick={navigateToConsoleRuns} type="button">
+            Open Console
+          </button>
+        </div>
+      </div>
+    </nav>
     <main className="page-shell">
       <section className="hero landing-hero">
         <div>
@@ -238,5 +254,6 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
         </div>
       </section>
     </main>
+    </>
   );
 }

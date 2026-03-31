@@ -56,7 +56,7 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
     <nav className="landing-nav">
       <div className="landing-nav-inner">
         <div className="landing-logo">
-          <img src="/scoutbound_logo_dark_2x.png" alt="Scoutbound" style={{ height: 28, width: "auto" }} />
+          <img src="/scoutbound_appicon_blue_512.png" alt="Scoutbound" style={{ height: 32, width: 32 }} />
         </div>
         <div className="landing-nav-actions">
           <button className="ghost-button" onClick={navigateToConsoleSessions} type="button">

@@ -21,36 +21,53 @@ function splitName(fullName: string): { First_Name?: string; Last_Name: string }
   return { First_Name: parts.join(" "), Last_Name: last };
 }
 
-export function mapLeadToZohoRecords(lead: LeadRecord): ZohoLead[] {
-  const sharedFields = {
+function buildSharedFields(lead: LeadRecord): Pick<ZohoLead, "Company" | "Website" | "Lead_Source" | "Description"> {
+  const description = [
+    lead.summary,
+    lead.score.reasons.length > 0 ? `Qualification reasons: ${lead.score.reasons.join(", ")}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const result: Pick<ZohoLead, "Company" | "Website" | "Lead_Source" | "Description"> = {
     Company: lead.companyName || lead.companyDomain || "Unknown Company",
-    Website: lead.websiteUrl || undefined,
     Lead_Source: "Scoutbound",
-    Description: [
-      lead.summary,
-      lead.score.reasons.length > 0 ? `Qualification reasons: ${lead.score.reasons.join(", ")}` : null,
-    ]
-      .filter(Boolean)
-      .join("\n\n") || undefined,
   };
+
+  if (lead.websiteUrl) {
+    result.Website = lead.websiteUrl;
+  }
+
+  if (description) {
+    result.Description = description;
+  }
+
+  return result;
+}
+
+export function mapLeadToZohoRecords(lead: LeadRecord): ZohoLead[] {
+  const shared = buildSharedFields(lead);
 
   if (lead.contacts.length === 0) {
     return [
       {
         Last_Name: lead.companyName || lead.companyDomain || "Unknown",
-        ...sharedFields,
+        ...shared,
       },
     ];
   }
 
   return lead.contacts.map((contact) => {
     const nameParts = contact.name ? splitName(contact.name) : { Last_Name: lead.companyName || "Unknown" };
+    const record: ZohoLead = { ...nameParts, ...shared };
 
-    return {
-      ...nameParts,
-      ...sharedFields,
-      ...(contact.email ? { Email: contact.email } : {}),
-      ...(contact.role ? { Title: contact.role } : {}),
-    };
+    if (contact.email) {
+      record.Email = contact.email;
+    }
+    if (contact.role) {
+      record.Title = contact.role;
+    }
+
+    return record;
   });
 }

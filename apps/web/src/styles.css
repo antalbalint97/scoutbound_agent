@@ -463,13 +463,13 @@ img {
 }
 
 .workflow-col-before {
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
+  background: var(--bg-muted);
+  border: 1px solid var(--border-default);
 }
 
 .workflow-col-after {
-  background: var(--success-bg);
-  border: 1px solid var(--success-border);
+  background: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
 }
 
 .workflow-col-label {
@@ -483,11 +483,11 @@ img {
 }
 
 .workflow-col-before .workflow-col-label {
-  color: var(--error);
+  color: var(--text-primary);
 }
 
 .workflow-col-after .workflow-col-label {
-  color: var(--success);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .workflow-compare ul {
@@ -506,6 +506,10 @@ img {
   gap: 8px;
 }
 
+.workflow-col-after ul li {
+  color: #ffffff;
+}
+
 .workflow-compare ul li::before {
   content: "";
   width: 6px;
@@ -516,11 +520,11 @@ img {
 }
 
 .workflow-col-before ul li::before {
-  background: var(--error);
+  background: var(--text-secondary);
 }
 
 .workflow-col-after ul li::before {
-  background: var(--success);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .workflow-arrow {

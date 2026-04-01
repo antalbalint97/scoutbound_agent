@@ -248,44 +248,45 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
           </div>
         </section>
 
-        <section className="top-grid landing-grid">
+        <section className="top-grid landing-grid landing-history-grid">
           <SavedSessionList
             error={error}
             isLoading={isLoading}
             onOpenSession={onOpenSavedSession}
             sessions={savedSessions}
           />
-          <section className="panel workflow-panel">
-            <div className="panel-header compact">
-              <p className="eyebrow">The manual workflow today</p>
-              <h2>What the product automates</h2>
+        </section>
+
+        <section className="panel workflow-panel landing-workflow-panel">
+          <div className="panel-header compact">
+            <p className="eyebrow">The manual workflow today</p>
+            <h2>What the product automates</h2>
+          </div>
+          <div className="workflow-compare">
+            <div className="workflow-col-before">
+              <span className="workflow-col-label">Manual workflow</span>
+              <ul>
+                <li>browse directories manually</li>
+                <li>inspect company websites one by one</li>
+                <li>assess ICP fit by hand</li>
+                <li>search for contact clues</li>
+                <li>build a spreadsheet</li>
+                <li>copy into CRM</li>
+              </ul>
             </div>
-            <div className="workflow-compare">
-              <div className="workflow-col-before">
-                <span className="workflow-col-label">Manual workflow</span>
-                <ul>
-                  <li>browse directories manually</li>
-                  <li>inspect company websites one by one</li>
-                  <li>assess ICP fit by hand</li>
-                  <li>search for contact clues</li>
-                  <li>build a spreadsheet</li>
-                  <li>copy into CRM</li>
-                </ul>
-              </div>
-              <div className="workflow-arrow">→</div>
-              <div className="workflow-col-after">
-                <span className="workflow-col-label">Automated workflow</span>
-                <ul>
-                  <li>define ICP once</li>
-                  <li>launch sourcing workflow</li>
-                  <li>agent navigates sites autonomously</li>
-                  <li>prospects ranked by fit and reachability</li>
-                  <li>review evidence-backed shortlist</li>
-                  <li>CRM sync</li>
-                </ul>
-              </div>
+            <div className="workflow-arrow">{"->"}</div>
+            <div className="workflow-col-after">
+              <span className="workflow-col-label">Automated workflow</span>
+              <ul>
+                <li>define ICP once</li>
+                <li>launch sourcing workflow</li>
+                <li>agent navigates sites autonomously</li>
+                <li>prospects ranked by fit and reachability</li>
+                <li>review evidence-backed shortlist</li>
+                <li>CRM sync</li>
+              </ul>
             </div>
-          </section>
+          </div>
         </section>
       </main>
     </>

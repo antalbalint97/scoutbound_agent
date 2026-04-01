@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useState } from "react";
+import { PanelRight, PanelRightClose } from "lucide-react";
 import type {
   DemoRun,
   ExperimentVariantSummary,
@@ -31,6 +33,7 @@ import {
 } from "../lib/activeExecution";
 
 export function ConsoleRunsPage() {
+  const [drawerOpen, setDrawerOpen] = useState(true);
   const [run, setRun] = useState<DemoRun | null>(null);
   const [telemetry, setTelemetry] = useState<SessionTelemetry | null>(null);
   const [variantSummary, setVariantSummary] = useState<ExperimentVariantSummary | null>(null);
@@ -311,8 +314,18 @@ export function ConsoleRunsPage() {
         </div>
       </section>
 
-      <section className="console-grid console-grid-detail">
+      <section className={`console-grid console-grid-detail${drawerOpen ? "" : " drawer-closed"}`}>
         <div className="results-column">
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
+            <button
+              className="drawer-toggle-btn"
+              onClick={() => setDrawerOpen((v) => !v)}
+              type="button"
+            >
+              {drawerOpen ? <PanelRightClose size={14} /> : <PanelRight size={14} />}
+              {drawerOpen ? "Hide details" : "Show evidence & contacts"}
+            </button>
+          </div>
           <div id="console-runs-zoho">
             <PushToZohoButton
               isSubmitting={isPushing}

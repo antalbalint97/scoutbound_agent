@@ -1424,6 +1424,35 @@ img {
   min-height: 100%;
 }
 
+/* Drawer toggle button */
+.drawer-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.drawer-toggle-btn:hover {
+  background: var(--bg-muted);
+  color: var(--text-primary);
+}
+
+/* When drawer is closed, collapse the right column */
+.console-grid-detail.drawer-closed {
+  grid-template-columns: 1fr;
+}
+.console-grid-detail.drawer-closed .drawer-column {
+  display: none;
+}
+
 .evidence-section + .evidence-section {
   margin-top: 24px;
 }

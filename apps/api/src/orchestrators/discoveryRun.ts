@@ -16,6 +16,7 @@ import {
   createWebsiteInspectionTask,
   parseWebsiteInspectionResult,
 } from "../integrations/tinyfish/inspectWebsite.js";
+import { findContactEmails } from "../integrations/emailFinder/scraper.js";
 import { logApiTrace, type DiscoveryTraceContext, withRunId } from "../lib/debugTrace.js";
 import { createMockDirectoryDiscovery, createMockWebsiteInspection } from "../mocks/sampleLeads.js";
 import {
@@ -873,7 +874,35 @@ async function executeLiveAsyncRun(
       }
 
       activeJobs.delete(snapshot.runId);
-      const inspection = parseWebsiteInspectionResult(active.candidate, snapshot.result);
+      let inspection = parseWebsiteInspectionResult(active.candidate, snapshot.result);
+
+      // Email fallback: if the agent found no emails, run a lightweight
+      // contact page scan using plain HTTP fetch + mailto: extraction.
+      if (inspection.emails.length === 0 && active.candidate.websiteUrl) {
+        try {
+          const scrapeResult = await findContactEmails(
+            active.candidate.websiteUrl,
+            inspection.contactPageUrl,
+          );
+          if (scrapeResult.emails.length > 0) {
+            console.log(
+              `[emailFinder] found ${scrapeResult.emails.length} email(s) for ${active.candidate.websiteUrl} via fallback`,
+            );
+            inspection = {
+              ...inspection,
+              emails: scrapeResult.emails,
+              qualityNotes: [
+                ...inspection.qualityNotes,
+                `Email(s) found via fallback contact page scan (${scrapeResult.pagesWithEmails.length} page${scrapeResult.pagesWithEmails.length !== 1 ? "s" : ""} checked).`,
+              ],
+            };
+          }
+        } catch (error) {
+          // Fallback failure is non-critical — log and continue.
+          const msg = error instanceof Error ? error.message : "unknown error";
+          console.warn(`[emailFinder] fallback scan failed for ${active.candidate.websiteUrl}: ${msg}`);
+        }
+      }
       updateInspectionSessionJob(runId, active.jobId, {
         status: inspection.inspectionStatus === "partial" ? "partial" : "completed",
         startedAt: snapshot.startedAt,

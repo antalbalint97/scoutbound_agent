@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { PanelRight, PanelRightClose } from "lucide-react";
 import type {
   ExperimentVariantSummary,
   PersistedSessionDetail,
@@ -76,6 +77,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"session-leads" | "session-evidence" | "session-exports" | "session-zoho" | "session-telemetry">("session-leads");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -340,10 +342,20 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
             );
           })()}
 
-          <section className="console-grid">
+          <section className={`console-grid console-grid-detail${!drawerOpen || activeTab !== "session-leads" ? " drawer-closed" : ""}`}>
             <div className="results-column">
               {activeTab === "session-leads" && (
                 <div id="session-leads">
+                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
+                    <button
+                      className="drawer-toggle-btn"
+                      onClick={() => setDrawerOpen((v) => !v)}
+                      type="button"
+                    >
+                      {drawerOpen ? <PanelRightClose size={14} /> : <PanelRight size={14} />}
+                      {drawerOpen ? "Hide details" : "Show evidence & contacts"}
+                    </button>
+                  </div>
                   {(session.lifecycleStatus === "created" || session.lifecycleStatus === "running") && session.leads.length === 0 && (
                     <div className="empty-state">
                       <p className="empty-state-title">Sourcing in progress</p>
@@ -410,6 +422,11 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
                 </div>
               )}
             </div>
+
+            {/* Evidence drawer — only visible on Prospects tab when open */}
+            {activeTab === "session-leads" && (
+              <EvidencePanel lead={selectedLead} />
+            )}
           </section>
         </>
       ) : null}

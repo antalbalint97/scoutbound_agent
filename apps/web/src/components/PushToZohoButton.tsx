@@ -95,14 +95,15 @@ export function PushToZohoButton({
         {isSubmitting
           ? "Syncing to Zoho…"
           : isDryRun
-          ? `Dry-run sync (${qualifiedCount} prospect${qualifiedCount !== 1 ? "s" : ""})`
-          : `Push ${qualifiedCount} prospect${qualifiedCount !== 1 ? "s" : ""} to Zoho CRM`}
+          ? `Review contacts & sync (${qualifiedCount} prospect${qualifiedCount !== 1 ? "s" : ""})`
+          : `Review contacts & sync (${qualifiedCount} prospect${qualifiedCount !== 1 ? "s" : ""})`}
       </button>
 
       {summary && (
         <ul className="stack-list compact-list" style={{ marginTop: 16 }}>
           <li>
-            Attempted {summary.attempted} · Pushed {summary.pushedCount}
+            Attempted {summary.attempted} lead{summary.attempted !== 1 ? "s" : ""} · Pushed{" "}
+            {summary.pushedCount} CRM record{summary.pushedCount !== 1 ? "s" : ""}
             {summary.failedCount > 0 ? ` · Failed ${summary.failedCount}` : ""}
           </li>
           <li>

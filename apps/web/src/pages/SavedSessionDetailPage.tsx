@@ -10,6 +10,7 @@ import { EvidencePanel } from "../components/EvidencePanel";
 import { ExportPanel } from "../components/ExportPanel";
 import { PushToZohoButton } from "../components/PushToZohoButton";
 import { SessionLeadTable } from "../components/SessionLeadTable";
+import { ZohoContactPickerModal } from "../components/ZohoContactPickerModal";
 import { TelemetryPanel } from "../components/TelemetryPanel";
 import {
   downloadSavedSessionCsvExport,
@@ -81,6 +82,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
   const [activeTab, setActiveTab] = useState<"session-leads" | "session-evidence" | "session-exports" | "session-zoho" | "session-telemetry">("session-leads");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const [isZohoContactPickerOpen, setIsZohoContactPickerOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +95,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
       setSelectedLeadIds([]);
       setZohoConnectionTest(null);
       setPushSummary(null);
+      setIsZohoContactPickerOpen(false);
 
       try {
         const [savedSession, status, variants] = await Promise.all([
@@ -233,14 +236,30 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
       return;
     }
 
+    setPageError(null);
+    if (pushableLeads.length === 0) {
+      setPageError("Select at least one qualified lead before syncing to Zoho CRM.");
+      return;
+    }
+    setIsZohoContactPickerOpen(true);
+  }
+
+  async function handleConfirmZohoPush(
+    selections: Array<{ leadId: string; contactIds: string[] }>,
+  ) {
+    if (!session) {
+      return;
+    }
+
     setIsPushing(true);
     setPageError(null);
 
     try {
-      const summary = await pushLeadsToZoho(session.id, selectedLeadIds);
+      const summary = await pushLeadsToZoho(session.id, selectedLeadIds, selections);
       setPushSummary(summary);
       const status = await getZohoStatus();
       setZohoStatus(status);
+      setIsZohoContactPickerOpen(false);
     } catch (error) {
       setPageError(error instanceof Error ? error.message : "Failed to sync leads to Zoho CRM.");
     } finally {
@@ -266,6 +285,14 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
 
   const selectedLead = session?.leads.find((lead) => lead.id === selectedLeadId) ?? null;
   const demoRun = session ? toDemoRunFromPersistedSession(session) : null;
+  const pushableLeadIds = session
+    ? selectedLeadIds.filter((leadId) =>
+        session.leads.some(
+          (lead) => lead.id === leadId && getEffectiveQualificationState(lead) === "qualified",
+        ),
+      )
+    : [];
+  const pushableLeads = session ? session.leads.filter((lead) => pushableLeadIds.includes(lead.id)) : [];
 
   const sectionLinks = [
     { id: "session-leads", label: "Prospects", onClick: () => setActiveTab("session-leads") as void },
@@ -453,6 +480,15 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
               <EvidencePanel lead={selectedLead} />
             )}
           </section>
+
+          <ZohoContactPickerModal
+            open={isZohoContactPickerOpen && pushableLeads.length > 0}
+            leads={pushableLeads}
+            selectedLeadIds={pushableLeadIds}
+            isSubmitting={isPushing}
+            onCancel={() => setIsZohoContactPickerOpen(false)}
+            onConfirm={(selections) => handleConfirmZohoPush(selections)}
+          />
         </>
       ) : null}
     </ConsoleLayout>

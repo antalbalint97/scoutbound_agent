@@ -7,7 +7,7 @@ import {
 } from "@revon-tinyfish/contracts";
 import { buildIcpSignature, getCorrelationId, logApiTrace } from "../lib/debugTrace.js";
 import { startDiscoveryRun } from "../orchestrators/discoveryRun.js";
-import { pushQualifiedLeadsToZoho } from "../integrations/zoho/client.js";
+import { pushQualifiedLeadsToZohoWithSelection } from "../integrations/zoho/client.js";
 import { persistDiscoveryRun } from "../services/persistenceService.js";
 import { getTelemetrySession } from "../services/telemetryStore.js";
 import { getRun, updatePushState } from "../services/runStore.js";
@@ -178,6 +178,9 @@ router.post("/:runId/push", async (request: Request, response: Response) => {
   }
 
   const requestedLeadIds = new Set(parsed.data.leadIds ?? run.leads.map((lead) => lead.id));
+  const leadContactSelectionMap = new Map(
+    (parsed.data.leadContactSelections ?? []).map((selection) => [selection.leadId, selection.contactIds]),
+  );
   const leadsToPush = run.leads.filter(
     (lead) => requestedLeadIds.has(lead.id) && lead.score.qualificationState === "qualified",
   );
@@ -194,7 +197,13 @@ router.post("/:runId/push", async (request: Request, response: Response) => {
   });
 
   try {
-    const result = await pushQualifiedLeadsToZoho(leadsToPush);
+    const result = await pushQualifiedLeadsToZohoWithSelection(
+      leadsToPush,
+      leadsToPush.map((lead) => ({
+        leadId: lead.id,
+        contactIds: leadContactSelectionMap.get(lead.id) ?? lead.contacts.map((contact) => contact.id),
+      })),
+    );
     const updatedRun = updatePushState(run.id, {
       status: "completed",
       dryRun: result.dryRun,

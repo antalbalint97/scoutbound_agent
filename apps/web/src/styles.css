@@ -993,6 +993,31 @@ textarea {
   cursor: not-allowed;
 }
 
+.secondary-button.tiny {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--border-default);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.icon-button:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+  background: var(--bg-muted);
+}
+
 .ghost-button {
   display: inline-flex;
   align-items: center;
@@ -1017,6 +1042,219 @@ textarea {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.zoho-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1200;
+}
+
+.zoho-picker-modal {
+  width: min(1100px, 100%);
+  max-height: calc(100vh - 48px);
+  background: var(--bg-default);
+  border: 1px solid var(--border-default);
+  border-radius: 28px;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.24);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.zoho-picker-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 24px 18px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.zoho-picker-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 4px 0 8px;
+}
+
+.zoho-picker-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-default);
+  background: linear-gradient(180deg, rgba(23, 92, 255, 0.03), transparent);
+}
+
+.zoho-picker-summary > div {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border-default);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.zoho-picker-summary strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.zoho-picker-body {
+  padding: 18px 24px 8px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.zoho-picker-lead {
+  padding: 18px;
+  border: 1px solid var(--border-default);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.zoho-picker-lead-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.zoho-picker-lead-header h4 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.zoho-picker-lead-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.zoho-picker-lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.zoho-picker-lead-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.zoho-picker-contacts {
+  display: grid;
+  gap: 10px;
+}
+
+.zoho-contact-row {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border-default);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.zoho-contact-row:hover {
+  border-color: rgba(23, 92, 255, 0.3);
+  background: rgba(23, 92, 255, 0.04);
+}
+
+.zoho-contact-row.selected {
+  border-color: rgba(23, 92, 255, 0.45);
+  background: rgba(23, 92, 255, 0.08);
+}
+
+.zoho-contact-row-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.zoho-contact-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-default);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.zoho-contact-checkbox.selected {
+  background: rgba(23, 92, 255, 0.14);
+  border-color: rgba(23, 92, 255, 0.4);
+}
+
+.zoho-contact-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.zoho-contact-role {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.zoho-contact-row-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.zoho-picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px 24px;
+  border-top: 1px solid var(--border-default);
+  background: rgba(248, 250, 255, 0.94);
+}
+
+.zoho-picker-footer-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.compact-empty {
+  padding: 20px 16px;
 }
 
 .justify-center {

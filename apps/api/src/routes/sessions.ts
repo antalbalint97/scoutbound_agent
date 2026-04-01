@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { pushRunRequestSchema, type PersistedLeadRevonState } from "@revon-tinyfish/contracts";
 import { pushQualifiedLeadsToRevon } from "../integrations/revon/client.js";
-import { pushQualifiedLeadsToZoho } from "../integrations/zoho/client.js";
+import { pushQualifiedLeadsToZohoWithSelection } from "../integrations/zoho/client.js";
 import { getEffectiveQualificationState } from "../domain/leads/effectiveQualification.js";
 import {
   buildPersistedSessionCsvExport,
@@ -59,6 +59,9 @@ async function handlePushToRevon(request: Request, response: Response) {
   }
 
   const requestedLeadIds = new Set(parsed.data.leadIds ?? session.leads.map((lead) => lead.id));
+  const leadContactSelectionMap = new Map(
+    (parsed.data.leadContactSelections ?? []).map((selection) => [selection.leadId, selection.contactIds]),
+  );
   const leadsToPush = session.leads.filter(
     (lead) => requestedLeadIds.has(lead.id) && getEffectiveQualificationState(lead) === "qualified",
   );
@@ -204,7 +207,13 @@ async function handlePushToZoho(request: Request, response: Response) {
   }
 
   try {
-    const result = await pushQualifiedLeadsToZoho(leadsToPush);
+    const result = await pushQualifiedLeadsToZohoWithSelection(
+      leadsToPush,
+      leadsToPush.map((lead) => ({
+        leadId: lead.id,
+        contactIds: leadContactSelectionMap.get(lead.id) ?? lead.contacts.map((contact) => contact.id),
+      })),
+    );
 
     response.json({
       summary: {

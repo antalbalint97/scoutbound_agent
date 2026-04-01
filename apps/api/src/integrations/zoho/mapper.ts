@@ -45,10 +45,17 @@ function buildSharedFields(lead: LeadRecord): Pick<ZohoLead, "Company" | "Websit
   return result;
 }
 
-export function mapLeadToZohoRecords(lead: LeadRecord): ZohoLead[] {
+export function mapLeadToZohoRecordsWithSelection(
+  lead: LeadRecord,
+  selectedContactIds?: Set<string>,
+): ZohoLead[] {
   const shared = buildSharedFields(lead);
+  const contacts =
+    selectedContactIds && selectedContactIds.size > 0
+      ? lead.contacts.filter((contact) => selectedContactIds.has(contact.id))
+      : lead.contacts;
 
-  if (lead.contacts.length === 0) {
+  if (contacts.length === 0) {
     return [
       {
         Last_Name: lead.companyName || lead.companyDomain || "Unknown",
@@ -57,7 +64,7 @@ export function mapLeadToZohoRecords(lead: LeadRecord): ZohoLead[] {
     ];
   }
 
-  return lead.contacts.map((contact) => {
+  return contacts.map((contact) => {
     const nameParts = contact.name ? splitName(contact.name) : { Last_Name: lead.companyName || "Unknown" };
     const record: ZohoLead = { ...nameParts, ...shared };
 
@@ -70,4 +77,8 @@ export function mapLeadToZohoRecords(lead: LeadRecord): ZohoLead[] {
 
     return record;
   });
+}
+
+export function mapLeadToZohoRecords(lead: LeadRecord): ZohoLead[] {
+  return mapLeadToZohoRecordsWithSelection(lead);
 }

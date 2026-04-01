@@ -245,19 +245,30 @@ export async function downloadSavedSessionCsvExport(
 export async function pushSavedSessionLeads(
   sessionId: string,
   leadIds?: string[],
+  leadContactSelections?: Array<{ leadId: string; contactIds: string[] }>,
 ): Promise<PersistedSessionPushResponse> {
   const data = await request<unknown>(`/api/sessions/${sessionId}/push-to-zoho`, {
     method: "POST",
-    body: JSON.stringify(leadIds !== undefined ? { leadIds } : {}),
+    body: JSON.stringify({
+      ...(leadIds !== undefined ? { leadIds } : {}),
+      ...(leadContactSelections !== undefined ? { leadContactSelections } : {}),
+    }),
   });
 
   return persistedSessionPushResponseSchema.parse(data);
 }
 
-export async function pushQualifiedLeads(runId: string, leadIds?: string[]): Promise<DemoRun> {
+export async function pushQualifiedLeads(
+  runId: string,
+  leadIds?: string[],
+  leadContactSelections?: Array<{ leadId: string; contactIds: string[] }>,
+): Promise<DemoRun> {
   const data = await request<unknown>(`/api/runs/${runId}/push`, {
     method: "POST",
-    body: JSON.stringify(leadIds !== undefined ? { leadIds } : {}),
+    body: JSON.stringify({
+      ...(leadIds !== undefined ? { leadIds } : {}),
+      ...(leadContactSelections !== undefined ? { leadContactSelections } : {}),
+    }),
   });
 
   return demoRunSchema.parse(data);
@@ -295,12 +306,16 @@ export async function testZohoConnection(): Promise<ZohoConnectionTestResult> {
 export async function pushLeadsToZoho(
   sessionId: string,
   leadIds?: string[],
+  leadContactSelections?: Array<{ leadId: string; contactIds: string[] }>,
 ): Promise<ZohoPushSummary> {
   const data = await request<{ summary: ZohoPushSummary }>(
     `/api/sessions/${sessionId}/push-to-zoho`,
     {
       method: "POST",
-      body: JSON.stringify(leadIds !== undefined ? { leadIds } : {}),
+      body: JSON.stringify({
+        ...(leadIds !== undefined ? { leadIds } : {}),
+        ...(leadContactSelections !== undefined ? { leadContactSelections } : {}),
+      }),
     },
   );
   return data.summary;

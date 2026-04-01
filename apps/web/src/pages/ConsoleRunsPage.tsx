@@ -12,6 +12,7 @@ import { EvidencePanel } from "../components/EvidencePanel";
 import { IcpForm } from "../components/IcpForm";
 import { LeadTable } from "../components/LeadTable";
 import { PushToZohoButton } from "../components/PushToZohoButton";
+import { ZohoContactPickerModal } from "../components/ZohoContactPickerModal";
 import { RunTimeline } from "../components/RunTimeline";
 import { TelemetryPanel } from "../components/TelemetryPanel";
 import { logWebTrace } from "../lib/debugTrace";
@@ -72,6 +73,7 @@ export function ConsoleRunsPage() {
   const [isRefreshingTelemetry, setIsRefreshingTelemetry] = useState(false);
   const [pageError, setPageError] = useState<string | null>(null);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
+  const [isZohoContactPickerOpen, setIsZohoContactPickerOpen] = useState(false);
 
   useEffect(() => {
     window.localStorage.setItem(WORKSPACE_TAB_STORAGE_KEY, activeWorkspaceTab);
@@ -270,6 +272,7 @@ export function ConsoleRunsPage() {
     setVariantSummary(null);
     setZohoConnectionTest(null);
     setZohoPushSummary(null);
+    setIsZohoContactPickerOpen(false);
 
     try {
       const runId = await startRun(input, trace);
@@ -292,6 +295,17 @@ export function ConsoleRunsPage() {
       return;
     }
 
+    setPageError(null);
+    setIsZohoContactPickerOpen(true);
+  }
+
+  async function handleConfirmZohoPush(
+    selections: Array<{ leadId: string; contactIds: string[] }>,
+  ) {
+    if (!run) {
+      return;
+    }
+
     setIsPushing(true);
     setPageError(null);
 
@@ -299,10 +313,11 @@ export function ConsoleRunsPage() {
       const leadIds = run.leads
         .filter((lead) => getEffectiveQualificationState(lead) === "qualified")
         .map((lead) => lead.id);
-      const summary = await pushLeadsToZoho(run.id, leadIds);
+      const summary = await pushLeadsToZoho(run.id, leadIds, selections);
       setZohoPushSummary(summary);
       const status = await getZohoStatus();
       setZohoStatus(status);
+      setIsZohoContactPickerOpen(false);
     } catch (error) {
       setPageError(error instanceof Error ? error.message : "Failed to sync leads to Zoho CRM.");
     } finally {
@@ -328,6 +343,7 @@ export function ConsoleRunsPage() {
 
   const selectedLead = run?.leads.find((lead) => lead.id === selectedLeadId) ?? null;
   const qualifiedCount = run?.leads.filter((l) => getEffectiveQualificationState(l) === "qualified").length ?? 0;
+  const qualifiedLeads = run?.leads.filter((lead) => getEffectiveQualificationState(lead) === "qualified") ?? [];
   const tabMeta = {
     setup: "Configure",
     trace: run?.status ? run.status : "idle",
@@ -342,7 +358,7 @@ export function ConsoleRunsPage() {
       activeNav="runs"
       title="Prospect sourcing workflow"
       subtitle="Configure ICP parameters, launch an autonomous sourcing workflow, and inspect the qualified prospect shortlist as it forms."
-    >
+      >
       {pageError ? <p className="inline-error page-error">{pageError}</p> : null}
 
       <section className="console-workspace">
@@ -427,6 +443,15 @@ export function ConsoleRunsPage() {
           </section>
         </div>
       </section>
+
+      <ZohoContactPickerModal
+        open={isZohoContactPickerOpen && qualifiedLeads.length > 0}
+        leads={qualifiedLeads}
+        selectedLeadIds={qualifiedLeads.map((lead) => lead.id)}
+        isSubmitting={isPushing}
+        onCancel={() => setIsZohoContactPickerOpen(false)}
+        onConfirm={(selections) => handleConfirmZohoPush(selections)}
+      />
     </ConsoleLayout>
   );
 }

@@ -8,7 +8,7 @@ import {
   type ZohoPushResult,
 } from "@revon-tinyfish/contracts";
 import { getDiscoveredZohoApiBaseUrl, getZohoAccessToken, invalidateZohoTokenCache } from "./auth.js";
-import { mapLeadToZohoRecords } from "./mapper.js";
+import { mapLeadToZohoRecordsWithSelection } from "./mapper.js";
 
 const BATCH_SIZE = 100;
 
@@ -163,10 +163,23 @@ async function pushBatch(
 }
 
 export async function pushQualifiedLeadsToZoho(leads: LeadRecord[]): Promise<ZohoPushResult> {
+  return pushQualifiedLeadsToZohoWithSelection(leads);
+}
+
+export interface ZohoLeadContactSelection {
+  leadId: string;
+  contactIds: string[];
+}
+
+export async function pushQualifiedLeadsToZohoWithSelection(
+  leads: LeadRecord[],
+  contactSelections?: ZohoLeadContactSelection[],
+): Promise<ZohoPushResult> {
   const dryRun = getDryRun();
   const destination = getApiBaseUrl();
   const module = getModule();
-  const allRecords = leads.flatMap((lead) => mapLeadToZohoRecords(lead));
+  const selectionMap = new Map(contactSelections?.map((item) => [item.leadId, new Set(item.contactIds)]));
+  const allRecords = leads.flatMap((lead) => mapLeadToZohoRecordsWithSelection(lead, selectionMap.get(lead.id)));
 
   console.log(
     `[zoho] push -> mode=${!isConfigured() || dryRun ? "dry-run" : "live"} leads=${leads.length} records=${allRecords.length} module=${module}`,

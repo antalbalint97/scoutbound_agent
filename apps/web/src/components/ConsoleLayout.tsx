@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Rocket, History, ArrowLeft, ChevronRight, Home } from "lucide-react";
+import { Rocket, History, ChevronRight, Home, Sparkles, ShieldCheck, Radar } from "lucide-react";
 import { navigateToConsoleRuns, navigateToConsoleSessions } from "../lib/routes";
 
 interface ConsoleLayoutProps {
@@ -59,6 +59,23 @@ export function ConsoleLayout({
             style={{ height: 28, width: 28 }}
           />
           <span className="console-logo-badge">Console</span>
+        </div>
+
+        <div className="console-sidebar-callout">
+          <p className="console-sidebar-callout-label">Command center</p>
+          <div className="console-sidebar-callout-row">
+            <span className="console-chip console-chip-primary">
+              <Sparkles size={12} />
+              Live web agent
+            </span>
+            <span className="console-chip">
+              <ShieldCheck size={12} />
+              CRM-ready
+            </span>
+          </div>
+          <p className="console-sidebar-callout-copy">
+            Broad prompts, real browsing, evidence trails, and a push path that can be tested in production.
+          </p>
         </div>
 
         {/* Primary nav */}
@@ -133,9 +150,18 @@ export function ConsoleLayout({
       <section className="console-main">
         <header className="console-header" data-testid="console-header">
           <div className="console-header-inner">
-            <div>
+            <div className="console-header-copy">
+              <p className="console-header-kicker">
+                <Radar size={14} />
+                Operator workspace
+              </p>
               <h2>{title}</h2>
               {subtitle ? <p className="console-subtitle">{subtitle}</p> : null}
+            </div>
+            <div className="console-header-status">
+              <span className="console-chip console-chip-primary">Prompt editable</span>
+              <span className="console-chip">Zoho test ready</span>
+              <span className="console-chip">History-aware</span>
             </div>
           </div>
         </header>

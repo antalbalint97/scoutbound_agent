@@ -454,10 +454,6 @@ textarea {
   grid-template-columns: repeat(3, 1fr);
 }
 
-.landing-flow-grid {
-  grid-template-columns: repeat(3, 1fr);
-}
-
 .hero-snapshot .panel-header {
   margin-bottom: 20px;
 }
@@ -2529,8 +2525,7 @@ textarea {
   }
 
   .landing-proof-strip,
-  .landing-value-grid,
-  .landing-flow-grid {
+  .landing-value-grid {
     grid-template-columns: 1fr;
   }
 

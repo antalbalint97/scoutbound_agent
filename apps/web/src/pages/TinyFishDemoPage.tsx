@@ -142,36 +142,6 @@ export function TinyFishDemoPage() {
           </div>
         </section>
 
-        <section className="landing-story section-block">
-          <div className="section-header landing-section-header">
-            <p className="eyebrow">How the demo flows</p>
-            <h2>Show the judge a real operator loop, not a static mockup.</h2>
-          </div>
-          <div className="preview-grid landing-flow-grid">
-            <div className="summary-card preview-card">
-              <span className="preview-card-label">1. Configure</span>
-              <h3 className="preview-card-title">Edit the ICP and prompt</h3>
-              <p className="preview-card-desc">
-                Use Demo mode, tweak the instructions, and show that the workflow starts from a user-authored prompt.
-              </p>
-            </div>
-            <div className="summary-card preview-card">
-              <span className="preview-card-label">2. Execute</span>
-              <h3 className="preview-card-title">Watch the live run</h3>
-              <p className="preview-card-desc">
-                The agent navigates real websites, captures evidence, and returns a ranked shortlist in 3-5 minutes.
-              </p>
-            </div>
-            <div className="summary-card preview-card">
-              <span className="preview-card-label">3. Hand off</span>
-              <h3 className="preview-card-title">Test Zoho connection</h3>
-              <p className="preview-card-desc">
-                Validate the CRM integration live, then push the qualified shortlist directly into your sales stack.
-              </p>
-            </div>
-          </div>
-        </section>
-
         <section className="panel workflow-panel landing-workflow-panel">
           <div className="panel-header compact">
             <p className="eyebrow">The manual workflow today</p>

@@ -61,14 +61,18 @@ function buildContacts(inspection: WebsiteInspection): LeadContact[] {
 
   // No named team members — create one generic contact per unmatched email
   if (emailPool.length > 0) {
-    return emailPool.map((email) => ({
-      id: randomUUID(),
-      name: "General contact",
-      role: "Inbox",
-      email,
-      linkedinUrl: null,
-      isDecisionMaker: false,
-    }));
+    return emailPool.map((email) => {
+      const local = email.split("@")[0] ?? "";
+      const isRoleAddress = /^(info|hello|contact|hi|hey|office|mail|sales|support|team|enquir|inquiry|hallo|kontakt|kapcsolat|impressum)/.test(local);
+      return {
+        id: randomUUID(),
+        name: isRoleAddress ? "General enquiry" : "Company contact",
+        role: isRoleAddress ? "Company inbox" : "Contact",
+        email,
+        linkedinUrl: null,
+        isDecisionMaker: false,
+      };
+    });
   }
 
   return [];

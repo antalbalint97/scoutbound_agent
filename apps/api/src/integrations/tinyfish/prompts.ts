@@ -85,11 +85,12 @@ Search context for later backend scoring:
 - Decision-maker titles to prioritise when visible: ${input.decisionMakerRole}
 - Keywords worth preserving when explicitly visible: ${input.keywords || "none"}
 
-Navigation instructions (follow in this order):
-1. Load the homepage. Scan for emails in the footer, header, and visible text.
-2. Look for a contact page link (e.g. "Contact", "Contact us", "Get in touch"). If found, navigate to it and capture any visible email addresses.
-3. Look for a team or about page link. If found, navigate to it and capture team members with their titles, emails, and LinkedIn profile URLs when explicitly visible.
-4. Stop after these pages — do not follow further links.
+Navigation instructions (follow in this order, all steps are mandatory):
+1. Load the homepage. Scan every visible section — header, footer, hero, sidebar — for email addresses and mailto: links. Capture everything found.
+2. Find and navigate to the contact page. Look for links labelled "Contact", "Contact us", "Get in touch", "Kontakt", "Kapcsolat", "Impressum", "Legal notice", or similar. This step is required — do not skip it. Capture all visible email addresses and phone numbers.
+3. Find and navigate to the team, about, or people page if a link is visible. Capture each named person with their role, direct email (if visible), and LinkedIn profile URL (if visible).
+4. If no contact or team page link is visible, check the footer for any mailto: link or plaintext email address.
+5. Stop after these pages — do not follow further links.
 
 Rules:
 - Only include emails and LinkedIn URLs that are explicitly visible on the page — do not guess or construct them.

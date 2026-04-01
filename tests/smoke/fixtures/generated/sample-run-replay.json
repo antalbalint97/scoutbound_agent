@@ -2,11 +2,11 @@
   "id": "recommended-live-replay",
   "presetId": "uk-digital-agencies",
   "input": {
-    "targetMarket": "Digital marketing agencies",
+    "targetMarket": "B2B agencies",
     "location": "United Kingdom",
-    "companySize": "11-50",
-    "keywords": "B2B clients, performance marketing, paid media",
-    "decisionMakerRole": "Marketing Director",
+    "companySize": "any",
+    "keywords": "B2B, performance marketing, lead generation, growth",
+    "decisionMakerRole": "Founder",
     "maxResults": 5
   },
   "mode": "live",

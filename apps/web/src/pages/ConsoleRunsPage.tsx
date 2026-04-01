@@ -22,7 +22,9 @@ import {
   getTelemetrySession,
   listTelemetryVariants,
   pushLeadsToZoho,
+  testZohoConnection,
   startRun,
+  type ZohoConnectionTestResult,
   type ZohoPushSummary,
 } from "../lib/api";
 import {
@@ -38,9 +40,11 @@ export function ConsoleRunsPage() {
   const [variantSummary, setVariantSummary] = useState<ExperimentVariantSummary | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [zohoStatus, setZohoStatus] = useState<ZohoAdapterStatus | null>(null);
+  const [zohoConnectionTest, setZohoConnectionTest] = useState<ZohoConnectionTestResult | null>(null);
   const [zohoPushSummary, setZohoPushSummary] = useState<ZohoPushSummary | null>(null);
   const [isStarting, setIsStarting] = useState(false);
   const [isPushing, setIsPushing] = useState(false);
+  const [isTestingZohoConnection, setIsTestingZohoConnection] = useState(false);
   const [isRefreshingTelemetry, setIsRefreshingTelemetry] = useState(false);
   const [pageError, setPageError] = useState<string | null>(null);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
@@ -53,6 +57,7 @@ export function ConsoleRunsPage() {
         const status = await getZohoStatus();
         if (!cancelled) {
           setZohoStatus(status);
+          setZohoConnectionTest(null);
         }
       } catch (error) {
         if (!cancelled) {
@@ -225,6 +230,7 @@ export function ConsoleRunsPage() {
       details: {
         payloadSignature: trace.payloadSignature,
         experimentLabel: input.experimentLabel,
+        promptOverride: input.promptOverride,
       },
     });
 
@@ -234,6 +240,8 @@ export function ConsoleRunsPage() {
     setSelectedLeadId(null);
     setTelemetry(null);
     setVariantSummary(null);
+    setZohoConnectionTest(null);
+    setZohoPushSummary(null);
 
     try {
       const runId = await startRun(input, trace);
@@ -270,6 +278,22 @@ export function ConsoleRunsPage() {
       setPageError(error instanceof Error ? error.message : "Failed to sync leads to Zoho CRM.");
     } finally {
       setIsPushing(false);
+    }
+  }
+
+  async function handleTestZohoConnection() {
+    setIsTestingZohoConnection(true);
+    setPageError(null);
+
+    try {
+      const result = await testZohoConnection();
+      setZohoConnectionTest(result);
+      const status = await getZohoStatus();
+      setZohoStatus(status);
+    } catch (error) {
+      setPageError(error instanceof Error ? error.message : "Failed to test the Zoho connection.");
+    } finally {
+      setIsTestingZohoConnection(false);
     }
   }
 
@@ -328,7 +352,10 @@ export function ConsoleRunsPage() {
           <div id="console-runs-zoho">
             <PushToZohoButton
               isSubmitting={isPushing}
+              isTestingConnection={isTestingZohoConnection}
               onPush={handlePush}
+              onTestConnection={handleTestZohoConnection}
+              connectionTest={zohoConnectionTest ?? undefined}
               zohoStatus={zohoStatus}
               qualifiedCount={
                 run?.leads.filter((l) => getEffectiveQualificationState(l) === "qualified").length ?? 0

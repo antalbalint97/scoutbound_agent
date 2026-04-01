@@ -84,6 +84,7 @@ export const startRunResponseSchema = z.object({
 export const startRunRequestSchema = z.object({
   input: icpInputSchema,
   experimentLabel: experimentLabelSchema.optional(),
+  promptOverride: z.string().trim().max(2000).default(""),
 });
 
 export const pushRunRequestSchema = z.object({

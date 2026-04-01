@@ -16,10 +16,13 @@ export interface DirectoryDiscoveryResult {
   warnings: string[];
 }
 
-export function createDirectoryDiscoveryTask(input: IcpInput): DirectoryDiscoveryTask {
+export function createDirectoryDiscoveryTask(
+  input: IcpInput,
+  promptOverride = "",
+): DirectoryDiscoveryTask {
   return {
     directoryUrl: buildDirectoryUrl(input),
-    goal: buildDirectoryGoal(input),
+    goal: buildDirectoryGoal(input, promptOverride),
   };
 }
 
@@ -37,8 +40,9 @@ export async function discoverCompanies(
   apiKey: string,
   input: IcpInput,
   trace?: DiscoveryTraceContext,
+  promptOverride = "",
 ): Promise<DirectoryDiscoveryResult> {
-  const task = createDirectoryDiscoveryTask(input);
+  const task = createDirectoryDiscoveryTask(input, promptOverride);
   logApiTrace("discoverCompanies.start", {
     correlationId: trace?.correlationId,
     runId: trace?.runId,

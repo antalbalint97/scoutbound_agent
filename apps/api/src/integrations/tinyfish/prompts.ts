@@ -38,8 +38,20 @@ export function buildDirectoryUrl(input: IcpInput): string {
   return `https://clutch.co${locationPath}${marketPath}`;
 }
 
-export function buildDirectoryGoal(input: IcpInput): string {
-  return `
+function appendOperatorInstructions(goal: string, promptOverride?: string): string {
+  const trimmed = promptOverride?.trim();
+  if (!trimmed) {
+    return goal;
+  }
+
+  return `${goal}
+
+Operator-added instructions:
+${trimmed}`;
+}
+
+export function buildDirectoryGoal(input: IcpInput, promptOverride = ""): string {
+  return appendOperatorInstructions(`
 Task: extract up to ${input.maxResults} factual company listings from the current directory page only.
 
 Search context for later backend scoring:
@@ -71,11 +83,11 @@ Return ONLY a JSON array. Each item must use these exact keys:
   "evidence_snippet": "short visible listing text snippet or null",
   "quality_notes": ["note about missing or uncertain data"]
 }
-`.trim();
+`.trim(), promptOverride);
 }
 
-export function buildWebsiteGoal(input: IcpInput): string {
-  return `
+export function buildWebsiteGoal(input: IcpInput, promptOverride = ""): string {
+  return appendOperatorInstructions(`
 Task: inspect this company website and return structured extraction for outbound sales prospecting.
 
 Search context for later backend scoring:
@@ -142,5 +154,5 @@ Return ONLY one JSON object with these exact keys:
   "uncertain_fields": ["team page availability"],
   "quality_notes": ["short operational note about limits or ambiguity"]
 }
-`.trim();
+`.trim(), promptOverride);
 }

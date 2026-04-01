@@ -68,6 +68,10 @@ interface OrchestrationConfig {
   maxCompaniesToInspect: number;
 }
 
+interface RunPromptOptions {
+  promptOverride?: string;
+}
+
 interface PollResult {
   completed: TinyFishRunSnapshot[];
   failed: Array<{ snapshot?: TinyFishRunSnapshot; runId: string; error: string }>;
@@ -525,6 +529,7 @@ async function executeLiveAsyncRun(
   input: IcpInput,
   dependencies: DiscoveryDependencies,
   runTrace: DiscoveryTraceContext,
+  promptOptions: RunPromptOptions,
 ): Promise<{ quality: RunQuality; notes: string[] }> {
   const sessionStartedAt = Date.now();
   const apiKey = process.env.TINYFISH_API_KEY?.trim();
@@ -544,7 +549,7 @@ async function executeLiveAsyncRun(
     correlationId: runTrace.correlationId,
   });
 
-  const directoryTask = createDirectoryDiscoveryTask(input);
+  const directoryTask = createDirectoryDiscoveryTask(input, promptOptions.promptOverride);
   setStepStatus(runId, "discovering_companies", "running", "Submitting async TinyFish directory discovery...");
   const directorySubmittedAtIso = new Date().toISOString();
   const directoryHandle = await dependencies.startTinyFishAutomationAsync({
@@ -678,7 +683,7 @@ async function executeLiveAsyncRun(
   while (pendingCandidates.length > 0 || activeJobs.size > 0) {
     while (pendingCandidates.length > 0 && activeJobs.size < config.inspectionConcurrency) {
       const candidate = pendingCandidates.shift()!;
-      const task = createWebsiteInspectionTask(input, candidate);
+      const task = createWebsiteInspectionTask(input, candidate, promptOptions.promptOverride);
       logApiTrace("inspection.submit.start", {
         correlationId: runTrace.correlationId,
         runId,
@@ -1085,6 +1090,7 @@ async function executeRun(
   allowFallback: boolean,
   dependencies: DiscoveryDependencies,
   trace?: DiscoveryTraceContext,
+  promptOptions: RunPromptOptions = {},
 ): Promise<void> {
   const runTrace = withRunId(trace, runId);
 
@@ -1106,7 +1112,7 @@ async function executeRun(
     }
 
     try {
-      await executeLiveAsyncRun(runId, input, dependencies, runTrace);
+      await executeLiveAsyncRun(runId, input, dependencies, runTrace, promptOptions);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Live TinyFish directory discovery failed unexpectedly.";
@@ -1162,6 +1168,7 @@ export function startDiscoveryRun(
   input: IcpInput,
   dependencies: DiscoveryDependencies = defaultDependencies,
   trace?: DiscoveryTraceContext,
+  promptOptions: RunPromptOptions = {},
 ): DemoRun {
   const resolved = resolveLiveMode();
   const runOptions: {
@@ -1203,6 +1210,6 @@ export function startDiscoveryRun(
     },
   });
   console.log(`[tinyfish-demo] starting discovery run ${run.id} in ${resolved.mode} mode`);
-  void executeRun(run.id, input, resolved.mode, resolved.allowFallback, dependencies, trace);
+  void executeRun(run.id, input, resolved.mode, resolved.allowFallback, dependencies, trace, promptOptions);
   return run;
 }

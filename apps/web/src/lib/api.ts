@@ -9,6 +9,7 @@ import {
   zohoAdapterStatusSchema,
   startRunRequestSchema,
   startRunResponseSchema,
+  zohoConnectionTestResultSchema,
   type DemoRun,
   type PersistedSessionDetail,
   type PersistedSessionListResponse,
@@ -16,6 +17,7 @@ import {
   type PersistedSessionSummary,
   type ExperimentVariantSummary,
   type RevonAdapterStatus,
+  type ZohoConnectionTestResult,
   type ZohoAdapterStatus,
   type SessionTelemetry,
   type StartRunRequest,
@@ -279,6 +281,15 @@ export interface ZohoPushSummary {
   destination: string;
   module: string;
   message: string | null;
+}
+
+export type { ZohoConnectionTestResult } from "@revon-tinyfish/contracts";
+
+export async function testZohoConnection(): Promise<ZohoConnectionTestResult> {
+  const data = await request<unknown>("/api/zoho/test", {
+    method: "POST",
+  });
+  return zohoConnectionTestResultSchema.parse(data);
 }
 
 export async function pushLeadsToZoho(

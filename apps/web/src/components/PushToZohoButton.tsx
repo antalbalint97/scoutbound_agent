@@ -1,21 +1,27 @@
-import type { ZohoAdapterStatus } from "@revon-tinyfish/contracts";
+import type { ZohoAdapterStatus, ZohoConnectionTestResult } from "@revon-tinyfish/contracts";
 import type { ZohoPushSummary } from "../lib/api";
 
 interface PushToZohoButtonProps {
   zohoStatus: ZohoAdapterStatus | null;
   isSubmitting: boolean;
+  isTestingConnection: boolean;
   qualifiedCount: number;
   onPush: () => Promise<void>;
+  onTestConnection: () => Promise<void>;
   selectedLeadIds?: string[] | undefined;
+  connectionTest?: ZohoConnectionTestResult | undefined;
   summary?: ZohoPushSummary | undefined;
 }
 
 export function PushToZohoButton({
   zohoStatus,
   isSubmitting,
+  isTestingConnection,
   qualifiedCount,
   onPush,
+  onTestConnection,
   selectedLeadIds,
+  connectionTest,
   summary,
 }: PushToZohoButtonProps) {
   const canPush = qualifiedCount > 0 && !isSubmitting;
@@ -60,6 +66,23 @@ export function PushToZohoButton({
       {isConfigured && isDryRun && (
         <p className="muted" style={{ marginBottom: 16 }}>
           Dry-run mode is active. Set <code>ZOHO_DRY_RUN=false</code> to push leads to Zoho CRM.
+        </p>
+      )}
+
+      <div className="button-row" style={{ marginBottom: 16 }}>
+        <button
+          className="secondary-button"
+          disabled={isTestingConnection}
+          onClick={() => void onTestConnection()}
+          type="button"
+        >
+          {isTestingConnection ? "Testing connection..." : "Test connection"}
+        </button>
+      </div>
+
+      {connectionTest && (
+        <p className="muted" style={{ marginBottom: 16 }}>
+          {connectionTest.message}
         </p>
       )}
 

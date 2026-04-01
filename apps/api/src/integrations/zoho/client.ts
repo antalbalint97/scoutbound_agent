@@ -1,7 +1,9 @@
 import {
   zohoAdapterStatusSchema,
+  zohoConnectionTestResultSchema,
   zohoPushResultSchema,
   type LeadRecord,
+  type ZohoConnectionTestResult,
   type ZohoAdapterStatus,
   type ZohoPushResult,
 } from "@revon-tinyfish/contracts";
@@ -36,6 +38,62 @@ export function getZohoAdapterStatus(): ZohoAdapterStatus {
     dryRun: getDryRun(),
     destination: getApiBaseUrl(),
     module: getModule(),
+  });
+}
+
+export async function testZohoConnection(): Promise<ZohoConnectionTestResult> {
+  const configured = isConfigured();
+  const dryRun = getDryRun();
+  const destination = getApiBaseUrl();
+  const module = getModule();
+
+  if (!configured) {
+    return zohoConnectionTestResultSchema.parse({
+      configured: false,
+      dryRun,
+      destination,
+      module,
+      success: false,
+      message:
+        "Zoho OAuth credentials are not configured (ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN).",
+    });
+  }
+
+  if (dryRun) {
+    return zohoConnectionTestResultSchema.parse({
+      configured: true,
+      dryRun: true,
+      destination,
+      module,
+      success: true,
+      message:
+        "Zoho credentials are configured. Dry-run mode is enabled, so live CRM writes are still disabled.",
+    });
+  }
+
+  const accessToken = await getZohoAccessToken();
+  const response = await fetch(`${destination}/settings/modules`, {
+    headers: {
+      Authorization: `Zoho-oauthtoken ${accessToken}`,
+    },
+  });
+
+  if (response.status === 401) {
+    invalidateZohoTokenCache();
+    throw new Error("Zoho API returned 401 Unauthorized while testing the connection.");
+  }
+
+  if (!response.ok) {
+    throw new Error(`Zoho connection test failed with HTTP ${response.status} ${response.statusText}.`);
+  }
+
+  return zohoConnectionTestResultSchema.parse({
+    configured: true,
+    dryRun: false,
+    destination,
+    module,
+    success: true,
+    message: "Zoho CRM connection verified successfully.",
   });
 }
 

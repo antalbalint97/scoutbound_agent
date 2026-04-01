@@ -32,12 +32,14 @@ function resolveDefaultExperimentLabel(): string {
 function parseStartRunPayload(body: unknown): {
   input: ReturnType<typeof icpInputSchema.parse>;
   experimentLabel: string;
+  promptOverride: string;
 } | null {
   const envelope = startRunRequestSchema.safeParse(body);
   if (envelope.success) {
     return {
       input: envelope.data.input,
       experimentLabel: envelope.data.experimentLabel ?? resolveDefaultExperimentLabel(),
+      promptOverride: envelope.data.promptOverride,
     };
   }
 
@@ -46,6 +48,7 @@ function parseStartRunPayload(body: unknown): {
     return {
       input: legacy.data,
       experimentLabel: resolveDefaultExperimentLabel(),
+      promptOverride: "",
     };
   }
 
@@ -96,7 +99,7 @@ router.post("/", (request: Request, response: Response) => {
     return;
   }
 
-  const payloadSignature = buildIcpSignature(parsed.input);
+  const payloadSignature = buildIcpSignature(parsed.input, parsed.promptOverride);
   logApiTrace("POST /api/runs.valid", {
     correlationId,
     invocationKey: correlationId,
@@ -106,11 +109,18 @@ router.post("/", (request: Request, response: Response) => {
     },
   });
 
-  const run = startDiscoveryRun(parsed.input, undefined, {
-    correlationId,
-    payloadSignature,
-    experimentLabel: parsed.experimentLabel,
-  });
+  const run = startDiscoveryRun(
+    parsed.input,
+    undefined,
+    {
+      correlationId,
+      payloadSignature,
+      experimentLabel: parsed.experimentLabel,
+    },
+    {
+      promptOverride: parsed.promptOverride,
+    },
+  );
   logApiTrace("POST /api/runs.accepted", {
     correlationId,
     runId: run.id,

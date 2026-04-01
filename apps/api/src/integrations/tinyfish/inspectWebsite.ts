@@ -15,10 +15,11 @@ export interface WebsiteInspectionTask {
 export function createWebsiteInspectionTask(
   input: IcpInput,
   candidate: DirectoryCandidate,
+  promptOverride = "",
 ): WebsiteInspectionTask {
   return {
     websiteUrl: candidate.websiteUrl,
-    goal: buildWebsiteGoal(input),
+    goal: buildWebsiteGoal(input, promptOverride),
   };
 }
 
@@ -34,9 +35,10 @@ export async function inspectWebsite(
   input: IcpInput,
   candidate: DirectoryCandidate,
   trace?: DiscoveryTraceContext,
+  promptOverride = "",
 ): Promise<WebsiteInspection> {
   try {
-    const task = createWebsiteInspectionTask(input, candidate);
+    const task = createWebsiteInspectionTask(input, candidate, promptOverride);
     logApiTrace("inspectWebsite.start", {
       correlationId: trace?.correlationId,
       runId: trace?.runId,

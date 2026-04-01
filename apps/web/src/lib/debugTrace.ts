@@ -31,7 +31,7 @@ export function createCorrelationId(): string {
   return `web-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function buildIcpSignature(input: IcpInput): string {
+export function buildIcpSignature(input: IcpInput, promptOverride = ""): string {
   return [
     input.targetMarket.trim().toLowerCase(),
     input.location.trim().toLowerCase(),
@@ -39,6 +39,7 @@ export function buildIcpSignature(input: IcpInput): string {
     input.keywords.trim().toLowerCase(),
     input.decisionMakerRole.trim().toLowerCase(),
     String(input.maxResults),
+    promptOverride.trim().toLowerCase(),
   ].join("|");
 }
 

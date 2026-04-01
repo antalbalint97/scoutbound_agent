@@ -18,6 +18,8 @@ import {
   getSavedSession,
   listTelemetryVariants,
   pushLeadsToZoho,
+  testZohoConnection,
+  type ZohoConnectionTestResult,
   type ZohoPushSummary,
 } from "../lib/api";
 import { getEffectiveQualificationState } from "../lib/leadQualification";
@@ -63,12 +65,14 @@ function sessionRevonStatusLabel(session: PersistedSessionDetail): string {
 export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetailPageProps) {
   const [session, setSession] = useState<PersistedSessionDetail | null>(null);
   const [zohoStatus, setZohoStatus] = useState<ZohoAdapterStatus | null>(null);
+  const [zohoConnectionTest, setZohoConnectionTest] = useState<ZohoConnectionTestResult | null>(null);
   const [variantSummary, setVariantSummary] = useState<ExperimentVariantSummary | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [pageError, setPageError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPushing, setIsPushing] = useState(false);
+  const [isTestingZohoConnection, setIsTestingZohoConnection] = useState(false);
   const [isExportingJson, setIsExportingJson] = useState(false);
   const [isExportingCsv, setIsExportingCsv] = useState(false);
   const [includeTelemetry, setIncludeTelemetry] = useState(true);
@@ -87,6 +91,8 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
       setSession(null);
       setSelectedLeadId(null);
       setSelectedLeadIds([]);
+      setZohoConnectionTest(null);
+      setPushSummary(null);
 
       try {
         const [savedSession, status, variants] = await Promise.all([
@@ -101,6 +107,7 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
 
         setSession(savedSession);
         setZohoStatus(status);
+        setZohoConnectionTest(null);
         setVariantSummary(
           variants.find((variant) => variant.experimentLabel === savedSession.experimentLabel) ?? null,
         );
@@ -238,6 +245,22 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
       setPageError(error instanceof Error ? error.message : "Failed to sync leads to Zoho CRM.");
     } finally {
       setIsPushing(false);
+    }
+  }
+
+  async function handleTestZohoConnection() {
+    setIsTestingZohoConnection(true);
+    setPageError(null);
+
+    try {
+      const result = await testZohoConnection();
+      setZohoConnectionTest(result);
+      const status = await getZohoStatus();
+      setZohoStatus(status);
+    } catch (error) {
+      setPageError(error instanceof Error ? error.message : "Failed to test the Zoho connection.");
+    } finally {
+      setIsTestingZohoConnection(false);
     }
   }
 
@@ -398,7 +421,10 @@ export function SavedSessionDetailPage({ sessionId, onBack }: SavedSessionDetail
                 <div id="session-zoho">
                   <PushToZohoButton
                     isSubmitting={isPushing}
+                    isTestingConnection={isTestingZohoConnection}
                     onPush={handlePush}
+                    onTestConnection={handleTestZohoConnection}
+                    connectionTest={zohoConnectionTest ?? undefined}
                     zohoStatus={zohoStatus}
                     qualifiedCount={session.leads.filter(
                       (l) => getEffectiveQualificationState(l) === "qualified",

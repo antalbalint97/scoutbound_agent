@@ -3,6 +3,7 @@ import { Rocket, Settings2 } from "lucide-react";
 import { icpInputSchema, type IcpInput, type StartRunRequest } from "@revon-tinyfish/contracts";
 import { DEFAULT_DEMO_INPUT, DEMO_PRESETS, type DemoPreset } from "../demoPresets";
 import { buildIcpSignature, createCorrelationId, logWebTrace } from "../lib/debugTrace";
+import { buildTinyFishPromptPreview } from "../lib/promptPreview";
 
 interface IcpFormProps {
   isSubmitting: boolean;
@@ -31,16 +32,18 @@ export function IcpForm({
 }: IcpFormProps) {
   const [form, setForm] = useState<IcpInput>(DEFAULT_DEMO_INPUT);
   const [experimentLabel, setExperimentLabel] = useState<string>(DEMO_PRESETS[0]?.experimentLabel ?? "");
+  const [promptOverride, setPromptOverride] = useState("");
   const [modeIntent, setModeIntent] = useState("backend_auto");
   const [qualityIntent, setQualityIntent] = useState("accept_degraded");
   const [error, setError] = useState<string | null>(null);
+  const promptPreview = buildTinyFishPromptPreview(form, promptOverride);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
       const parsed = icpInputSchema.parse(form);
       const correlationId = createCorrelationId();
-      const payloadSignature = buildIcpSignature(parsed);
+      const payloadSignature = buildIcpSignature(parsed, promptOverride);
 
       logWebTrace("IcpForm.handleSubmit", {
         correlationId,
@@ -49,6 +52,7 @@ export function IcpForm({
           payloadSignature,
           isSubmitting,
           experimentLabel,
+          promptOverride,
           modeIntent,
           qualityIntent,
         },
@@ -59,6 +63,7 @@ export function IcpForm({
         {
           input: parsed,
           ...(experimentLabel.trim() ? { experimentLabel: experimentLabel.trim() } : {}),
+          promptOverride: promptOverride.trim(),
         },
         {
           correlationId,
@@ -82,6 +87,7 @@ export function IcpForm({
   function applyPreset(preset: DemoPreset) {
     setForm(preset.input);
     setExperimentLabel(preset.experimentLabel);
+    setPromptOverride("");
     setError(null);
   }
 
@@ -167,6 +173,74 @@ export function IcpForm({
             </p>
           </div>
         ) : null}
+
+        <details style={{
+          marginTop: 12,
+          padding: 16,
+          background: "var(--bg-muted)",
+          borderRadius: 12,
+          border: "1px solid var(--border-default)",
+        }}>
+          <summary style={{ cursor: "pointer", fontWeight: 700, listStyle: "none" }}>
+            TinyFish prompt preview
+          </summary>
+          <p className="form-note" style={{ marginTop: 8, color: "var(--text-muted)" }}>
+            This is the task prompt the agent receives. It is not a system prompt, but it is the
+            instruction set that matters for the live run.
+          </p>
+          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+            <div>
+              <strong style={{ display: "block", marginBottom: 6 }}>Directory discovery</strong>
+              <pre style={{
+                margin: 0,
+                whiteSpace: "pre-wrap",
+                fontSize: "0.8rem",
+                lineHeight: 1.5,
+                color: "var(--text-secondary)",
+                background: "var(--panel-bg)",
+                padding: 12,
+                borderRadius: 10,
+                border: "1px solid var(--border-default)",
+                maxHeight: 220,
+                overflow: "auto",
+              }}>
+                {promptPreview.directory}
+              </pre>
+            </div>
+            <div>
+              <strong style={{ display: "block", marginBottom: 6 }}>Website inspection</strong>
+              <pre style={{
+                margin: 0,
+                whiteSpace: "pre-wrap",
+                fontSize: "0.8rem",
+                lineHeight: 1.5,
+                color: "var(--text-secondary)",
+                background: "var(--panel-bg)",
+                padding: 12,
+                borderRadius: 10,
+                border: "1px solid var(--border-default)",
+                maxHeight: 220,
+                overflow: "auto",
+              }}>
+                {promptPreview.website}
+              </pre>
+            </div>
+          </div>
+        </details>
+
+        <label>
+          <span>Agent Instructions</span>
+          <textarea
+            value={promptOverride}
+            onChange={(event) => setPromptOverride(event.target.value)}
+            placeholder="Optional: add operator instructions that should shape the TinyFish task prompt. Example: Prioritize agencies with a visible contact page and public team bios."
+            rows={5}
+            data-testid="textarea-prompt-override"
+          />
+          <span className="form-note">
+            This text is appended to the live task prompt and can be edited in the demo.
+          </span>
+        </label>
 
         <label>
           <span>Target Market</span>

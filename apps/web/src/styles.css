@@ -1772,10 +1772,6 @@ textarea {
   line-height: 1.5;
 }
 
-.landing-history-grid {
-  grid-template-columns: 1fr;
-}
-
 .landing-workflow-panel {
   margin-top: 8px;
 }
@@ -2689,10 +2685,6 @@ textarea {
     grid-template-columns: 1fr;
   }
 
-  .landing-history-grid {
-    gap: 0;
-  }
-  
   .summary-grid {
     grid-template-columns: 1fr;
   }

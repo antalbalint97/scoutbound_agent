@@ -36,5 +36,5 @@ export default function App() {
     );
   }
 
-  return <TinyFishDemoPage onOpenSavedSession={navigateToSavedSession} />;
+  return <TinyFishDemoPage />;
 }

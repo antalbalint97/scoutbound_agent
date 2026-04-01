@@ -1,58 +1,7 @@
-import { useEffect, useState } from "react";
 import { ArrowRight, Database, Radar, Sparkles, ShieldCheck, Workflow } from "lucide-react";
-import type { PersistedSessionSummary } from "@revon-tinyfish/contracts";
-import { SavedSessionList } from "../components/SavedSessionList";
-import { listSavedSessions } from "../lib/api";
 import { navigateToConsoleRuns, navigateToConsoleSessions } from "../lib/routes";
 
-interface TinyFishDemoPageProps {
-  onOpenSavedSession: (sessionId: string) => void;
-}
-
-export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) {
-  const [savedSessions, setSavedSessions] = useState<PersistedSessionSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const latestSession = savedSessions[0] ?? null;
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadSessions() {
-      setIsLoading(true);
-      try {
-        const sessions = await listSavedSessions();
-        if (!cancelled) {
-          setSavedSessions(sessions);
-          setError(null);
-        }
-      } catch (loadError) {
-        if (!cancelled) {
-          setError(loadError instanceof Error ? loadError.message : "Failed to load workflow history.");
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    void loadSessions();
-
-    function handleVisibilityChange() {
-      if (!document.hidden) {
-        void loadSessions();
-      }
-    }
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      cancelled = true;
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
-
+export function TinyFishDemoPage() {
   return (
     <>
       <nav className="landing-nav landing-nav-modern">
@@ -112,63 +61,38 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
           <section className="panel landing-panel hero-snapshot landing-spotlight">
             <div className="panel-header compact">
               <p className="eyebrow">Live sourcing overview</p>
-              <h2>{latestSession ? "Latest workflow snapshot" : "No workflow executed yet"}</h2>
+              <h2>Ready to launch a real run</h2>
             </div>
-            {latestSession ? (
-              <>
-                <div className="summary-cards landing-stats">
-                  <div className="summary-card">
-                    <span className="summary-card-label">Prospects discovered</span>
-                    <span className="summary-card-value">{latestSession.leadCount}</span>
-                  </div>
-                  <div className="summary-card">
-                    <span className="summary-card-label">Qualified</span>
-                    <span className="summary-card-value" style={{ color: "#2e7750" }}>
-                      {latestSession.qualifiedLeadCount}
-                    </span>
-                  </div>
-                  <div className="summary-card">
-                    <span className="summary-card-label">Evidence-backed</span>
-                    <span className="summary-card-value">{latestSession.usableLeadCount}</span>
-                  </div>
-                  <div className="summary-card">
-                    <span className="summary-card-label">CRM sync ready</span>
-                    <span className="summary-card-value">{latestSession.qualifiedLeadCount}</span>
-                  </div>
-                </div>
-                <div className="landing-spotlight-footer">
-                  <div>
-                    <p className="landing-foot-label">Current experiment</p>
-                    <strong>{latestSession.experimentLabel}</strong>
-                  </div>
-                  <button className="ghost-button" onClick={navigateToConsoleSessions} type="button">
-                    Open latest session <ArrowRight size={14} />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="empty-state landing-empty">
-                <p className="empty-state-title">Ready to launch a real run</p>
-                <p>
-                  The operator console will show the prompt, live trace, lead scoring, and Zoho handoff once you
-                  start a workflow.
-                </p>
-                <div className="landing-empty-grid">
-                  <span className="landing-empty-pill">
-                    <Radar size={12} />
-                    Live browsing
-                  </span>
-                  <span className="landing-empty-pill">
-                    <Database size={12} />
-                    Evidence trail
-                  </span>
-                  <span className="landing-empty-pill">
-                    <ShieldCheck size={12} />
-                    CRM handoff
-                  </span>
-                </div>
+            <div className="empty-state landing-empty">
+              <p className="empty-state-title">Prompt-first, traceable, CRM-ready</p>
+              <p>
+                The operator console shows the prompt, live trace, lead scoring, and Zoho handoff once you start
+                a workflow.
+              </p>
+              <div className="landing-empty-grid">
+                <span className="landing-empty-pill">
+                  <Radar size={12} />
+                  Live browsing
+                </span>
+                <span className="landing-empty-pill">
+                  <Database size={12} />
+                  Evidence trail
+                </span>
+                <span className="landing-empty-pill">
+                  <ShieldCheck size={12} />
+                  CRM handoff
+                </span>
               </div>
-            )}
+            </div>
+            <div className="landing-spotlight-footer">
+              <div>
+                <p className="landing-foot-label">Where to inspect history</p>
+                <strong>Console history tab or workflow detail pages</strong>
+              </div>
+              <button className="ghost-button" onClick={navigateToConsoleSessions} type="button">
+                Open history <ArrowRight size={14} />
+              </button>
+            </div>
           </section>
         </section>
 
@@ -246,15 +170,6 @@ export function TinyFishDemoPage({ onOpenSavedSession }: TinyFishDemoPageProps) 
               </p>
             </div>
           </div>
-        </section>
-
-        <section className="top-grid landing-grid landing-history-grid">
-          <SavedSessionList
-            error={error}
-            isLoading={isLoading}
-            onOpenSession={onOpenSavedSession}
-            sessions={savedSessions}
-          />
         </section>
 
         <section className="panel workflow-panel landing-workflow-panel">

@@ -54,9 +54,9 @@ export function ConsoleLayout({
         {/* Logo — same as landing nav */}
         <div className="console-logo-row">
           <img
-            src="/scoutbound_logo_dark_2x.png"
+            src="/scoutbound_appicon_blue_512.png"
             alt="Scoutbound"
-            style={{ height: 22, width: "auto" }}
+            style={{ height: 28, width: 28 }}
           />
           <span className="console-logo-badge">Console</span>
         </div>

@@ -1535,6 +1535,16 @@ textarea {
   overflow-x: auto;
 }
 
+.workspace-tab-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
 .tab-pill {
   appearance: none;
   border: 0;
@@ -1547,6 +1557,31 @@ textarea {
   letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.workspace-tab-pill {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
+  justify-items: start;
+  white-space: normal;
+}
+
+.workspace-tab-pill .workspace-tab-pill-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workspace-tab-pill .workspace-tab-pill-meta {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: none;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tab-pill:hover {
@@ -1568,6 +1603,23 @@ textarea {
   border: 1px solid rgba(228, 228, 231, 0.82);
   background: rgba(250, 250, 250, 0.76);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.console-workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.workspace-tab-stage {
+  display: grid;
+}
+
+.workspace-tab-pane {
+  display: block;
+}
+
+.workspace-tab-pane[hidden] {
+  display: none !important;
 }
 
 .form-grid-2 {
@@ -2485,6 +2537,10 @@ textarea {
   .landing-flow-grid {
     grid-template-columns: 1fr;
   }
+
+  .workspace-tab-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {
@@ -2569,6 +2625,10 @@ textarea {
   .landing-spotlight-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .workspace-tab-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .landing-nav-inner {
@@ -2658,6 +2718,10 @@ textarea {
   .button-row .primary-button,
   .button-row .secondary-button {
     width: 100%;
+  }
+
+  .workspace-tab-strip {
+    grid-template-columns: 1fr;
   }
 
   .landing-status-row {

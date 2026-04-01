@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PanelRight, PanelRightClose } from "lucide-react";
+import { Activity, Database, FileSearch, ListChecks, Sparkles, Settings2 } from "lucide-react";
 import type {
   DemoRun,
   ExperimentVariantSummary,
@@ -33,8 +33,32 @@ import {
   saveActiveExecution,
 } from "../lib/activeExecution";
 
+type WorkspaceTab = "setup" | "trace" | "leads" | "evidence" | "zoho" | "telemetry";
+
+const WORKSPACE_TAB_STORAGE_KEY = "scoutbound.console.workspaceTab";
+
+function readStoredWorkspaceTab(): WorkspaceTab {
+  if (typeof window === "undefined") {
+    return "setup";
+  }
+
+  const rawValue = window.localStorage.getItem(WORKSPACE_TAB_STORAGE_KEY);
+  if (
+    rawValue === "setup" ||
+    rawValue === "trace" ||
+    rawValue === "leads" ||
+    rawValue === "evidence" ||
+    rawValue === "zoho" ||
+    rawValue === "telemetry"
+  ) {
+    return rawValue;
+  }
+
+  return "setup";
+}
+
 export function ConsoleRunsPage() {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<WorkspaceTab>(() => readStoredWorkspaceTab());
   const [run, setRun] = useState<DemoRun | null>(null);
   const [telemetry, setTelemetry] = useState<SessionTelemetry | null>(null);
   const [variantSummary, setVariantSummary] = useState<ExperimentVariantSummary | null>(null);
@@ -48,6 +72,10 @@ export function ConsoleRunsPage() {
   const [isRefreshingTelemetry, setIsRefreshingTelemetry] = useState(false);
   const [pageError, setPageError] = useState<string | null>(null);
   const [telemetryError, setTelemetryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.localStorage.setItem(WORKSPACE_TAB_STORAGE_KEY, activeWorkspaceTab);
+  }, [activeWorkspaceTab]);
 
   useEffect(() => {
     let cancelled = false;
@@ -251,6 +279,7 @@ export function ConsoleRunsPage() {
       });
       const freshRun = await getRun(runId);
       setRun(freshRun);
+      setActiveWorkspaceTab((current) => (current === "setup" ? "trace" : current));
     } catch (error) {
       setPageError(error instanceof Error ? error.message : "Failed to start the Scoutbound run.");
     } finally {
@@ -298,58 +327,83 @@ export function ConsoleRunsPage() {
   }
 
   const selectedLead = run?.leads.find((lead) => lead.id === selectedLeadId) ?? null;
+  const qualifiedCount = run?.leads.filter((l) => getEffectiveQualificationState(l) === "qualified").length ?? 0;
+  const tabMeta = {
+    setup: "Configure",
+    trace: run?.status ? run.status : "idle",
+    leads: `${run?.leads.length ?? 0} leads`,
+    evidence: selectedLead ? selectedLead.companyName : "select a lead",
+    zoho: `${qualifiedCount} ready`,
+    telemetry: telemetry ? "loaded" : "snapshot",
+  };
 
   return (
     <ConsoleLayout
       activeNav="runs"
       title="Prospect sourcing workflow"
       subtitle="Configure ICP parameters, launch an autonomous sourcing workflow, and inspect the qualified prospect shortlist as it forms."
-      sectionLinks={[
-        { id: "console-runs-leads", label: "Prospects" },
-        { id: "console-runs-zoho", label: "Zoho CRM sync" },
-        { id: "console-runs-telemetry", label: "Telemetry" },
-      ]}
     >
       {pageError ? <p className="inline-error page-error">{pageError}</p> : null}
 
-      <section className="console-grid console-grid-runs">
-        <IcpForm
-          description="Define the ICP parameters, geography, and execution constraints. The agent will navigate live websites and return a ranked prospect shortlist."
-          eyebrow="Workflow objective"
-          isSubmitting={isStarting}
-          operatorMode
-          showPresets={false}
-          title="Configure prospect sourcing"
-          onSubmit={handleStart}
-        />
-
-        <div className="trace-column">
-          <RunTimeline run={run} />
-          <div id="console-runs-telemetry">
-            <TelemetryPanel
-              error={telemetryError}
-              isRefreshing={isRefreshingTelemetry}
-              run={run}
-              telemetry={telemetry}
-              variantSummary={variantSummary}
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className={`console-grid console-grid-detail${drawerOpen ? "" : " drawer-closed"}`}>
-        <div className="results-column">
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
+      <section className="console-workspace">
+        <div className="tab-strip workspace-tab-strip" role="tablist" aria-label="Run workspace tabs">
+          {(
+            [
+              { id: "setup", label: "Setup", icon: Settings2, meta: "Edit ICP" },
+              { id: "trace", label: "Trace", icon: Activity, meta: tabMeta.trace },
+              { id: "leads", label: "Leads", icon: ListChecks, meta: tabMeta.leads },
+              { id: "evidence", label: "Evidence", icon: FileSearch, meta: tabMeta.evidence },
+              { id: "zoho", label: "Zoho", icon: Database, meta: tabMeta.zoho },
+              { id: "telemetry", label: "Telemetry", icon: Sparkles, meta: tabMeta.telemetry },
+            ] as const
+          ).map((tab) => (
             <button
-              className="drawer-toggle-btn"
-              onClick={() => setDrawerOpen((v) => !v)}
+              key={tab.id}
+              className={`tab-pill workspace-tab-pill ${activeWorkspaceTab === tab.id ? "active" : ""}`}
+              onClick={() => setActiveWorkspaceTab(tab.id)}
               type="button"
+              role="tab"
+              aria-selected={activeWorkspaceTab === tab.id}
             >
-              {drawerOpen ? <PanelRightClose size={14} /> : <PanelRight size={14} />}
-              {drawerOpen ? "Hide details" : "Show evidence & contacts"}
+              <span className="workspace-tab-pill-label">
+                <tab.icon size={14} />
+                {tab.label}
+              </span>
+              <span className="workspace-tab-pill-meta">{tab.meta}</span>
             </button>
-          </div>
-          <div id="console-runs-zoho">
+          ))}
+        </div>
+
+        <div className="workspace-tab-stage">
+          <section className="workspace-tab-pane" hidden={activeWorkspaceTab !== "setup"}>
+            <IcpForm
+              description="Define the ICP parameters, geography, and execution constraints. The agent will navigate live websites and return a ranked prospect shortlist."
+              eyebrow="Workflow objective"
+              isSubmitting={isStarting}
+              operatorMode
+              showPresets={false}
+              title="Configure prospect sourcing"
+              onSubmit={handleStart}
+            />
+          </section>
+
+          <section className="workspace-tab-pane" hidden={activeWorkspaceTab !== "trace"}>
+            <RunTimeline run={run} />
+          </section>
+
+          <section className="workspace-tab-pane" hidden={activeWorkspaceTab !== "leads"}>
+            <LeadTable
+              leads={run?.leads ?? []}
+              onSelect={setSelectedLeadId}
+              selectedLeadId={selectedLeadId}
+            />
+          </section>
+
+          <section className="workspace-tab-pane" hidden={activeWorkspaceTab !== "evidence"}>
+            <EvidencePanel lead={selectedLead} />
+          </section>
+
+          <section className="workspace-tab-pane" hidden={activeWorkspaceTab !== "zoho"}>
             <PushToZohoButton
               isSubmitting={isPushing}
               isTestingConnection={isTestingZohoConnection}
@@ -357,22 +411,21 @@ export function ConsoleRunsPage() {
               onTestConnection={handleTestZohoConnection}
               connectionTest={zohoConnectionTest ?? undefined}
               zohoStatus={zohoStatus}
-              qualifiedCount={
-                run?.leads.filter((l) => getEffectiveQualificationState(l) === "qualified").length ?? 0
-              }
+              qualifiedCount={qualifiedCount}
               summary={zohoPushSummary ?? undefined}
             />
-          </div>
-          <div id="console-runs-leads">
-            <LeadTable
-              leads={run?.leads ?? []}
-              onSelect={setSelectedLeadId}
-              selectedLeadId={selectedLeadId}
-            />
-          </div>
-        </div>
+          </section>
 
-        <EvidencePanel lead={selectedLead} />
+          <section className="workspace-tab-pane" hidden={activeWorkspaceTab !== "telemetry"}>
+            <TelemetryPanel
+              error={telemetryError}
+              isRefreshing={isRefreshingTelemetry}
+              run={run}
+              telemetry={telemetry}
+              variantSummary={variantSummary}
+            />
+          </section>
+        </div>
       </section>
     </ConsoleLayout>
   );
